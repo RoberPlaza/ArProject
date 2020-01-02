@@ -1,18 +1,20 @@
 #include "App.h"
-#include "ConfigFile.h"
+
+#include <AR/gsub.h>
+#include <AR/video.h>
+#include <AR/param.h>
+
+#include <GL/glut.h>
 
 #include <chrono>
 #include <iostream>
 
 
-App::App(const string &configFilePath)
+App::App(const string &configFilePath) : configuration(configFilePath)
 {
-    ConfigFile configFile(configFilePath);
-
-    targetFramerate = stof(configFile["App.targetFramerate"]);
-    zBufferSize     = stoi(configFile["App.zBufferSize"]);
-
-    loopFlag        = LoopFlag::Continue;
+    targetFramerate = stof(configuration["App.targetFramerate"]);
+    zBufferSize     = stoi(configuration["App.zBufferSize"]);
+    finished        = false;
 }
 
 App::~App() 
@@ -20,41 +22,76 @@ App::~App()
 
 }
 
-int App::Run(int argc, char *argv[])
+void App::Run()
 {
-    int returnCode = 0;
+    while (!finished) {
+        const float elapsedTime = duration_cast<microseconds>
+            (Clock::now() - beginTime).count() / 1000000.0f;
 
-    if ((returnCode = BeginPlay()) == 0) {
-        while (loopFlag == LoopFlag::Continue) {
-            const Clock::time_point nextFrame = Clock::now() + milliseconds(FramerateToFrametime(targetFramerate));
-            const float elapsedTime = duration_cast<microseconds>(Clock::now() - beginTime).count() / 1000000.0f; 
-            
-            cout << "elapsedTime is: " << elapsedTime << endl;
-            returnCode = Tick(elapsedTime);
+        Tick(elapsedTime);
 
-            sleep_until(nextFrame);
-        }
+        const Clock::time_point nextFrame = Clock::now()
+            + milliseconds(FramerateToFrametime(targetFramerate));
+
+        sleep_until(nextFrame);
     }
 
     Cleanup();
-
-    return returnCode;
 }
 
-int App::Tick(float Delta)
+void App::Tick(float elapsedTime)
 {
-    cout << Delta << endl;
-    return Delta > 5000.0f;
+    cout << "Elapsed Time: " << elapsedTime << endl;
+/*
+    ARUint8 *dataPtr = arVideoGetImage();
+
+    argDrawMode2D();
+    argDispImage(dataPtr, 0, 0);
+*/
 }
 
-int App::BeginPlay() 
+void App::BeginPlay(int argc, char *argv[]) 
 {
+    glutInit(&argc, argv);
+
+    SetupVideoCapture();
+
+    CreatePatterns();
+
+    arVideoCapStart();
+
     beginTime = Clock::now();
-
-    return 0;
 }
 
 void App::Cleanup() 
 {
+    arVideoCapStop();
+    arVideoClose();
+    argCleanup();
+}
 
+void App::SetupVideoCapture() 
+{
+    ARParam windowParam;
+    ARParam cameraParam;
+
+    char *videoInput = const_cast<char *>(configuration["camera"].c_str());
+
+    if (arVideoOpen(videoInput) < 0)
+        throw std::runtime_error("Impossible to initialize ARToolkit video.");
+
+    if (arVideoInqSize(&cameraSizeX, &cameraSizeY) < 0)
+        throw std::runtime_error("Impossible to get camera size");
+
+    if (arParamLoad(configuration["App.cameraConfigPath"].c_str(), 1, &windowParam) < 0)
+        throw std::runtime_error("Impossible to start camera recording");
+
+    arParamChangeSize(&windowParam, cameraSizeX, cameraSizeY, &cameraParam);
+    arInitCparam(&cameraParam);
+    argInit(&cameraParam, 1.0, 0, 0, 0, 0);
+}
+
+void App::CreatePatterns()
+{
+    
 }

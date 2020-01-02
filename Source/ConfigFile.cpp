@@ -20,8 +20,6 @@ ConfigFile::ConfigFile(const string &filePath)
             default: AddLine(lineBuffer, moduleBuffer); break;
         }
     }
-    for (const auto &config : configContent)
-        cout << config.first << " -> " << config.second << endl;
 }
 
 string ConfigFile::GetModule(const string &line)

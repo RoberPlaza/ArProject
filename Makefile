@@ -1,3 +1,5 @@
+ARTOOLKITPATH := ../ARToolKit/
+
 DIRSRC := Source/
 DIROBJ := Build/
 DIREXE := Programs/
@@ -7,17 +9,22 @@ DIRRES := Resources/
 DIRIMG := $(DIRRES)Images/
 DIRMDL := $(DIRRES)Models/
 
-CXXFLG := -Wall -std=c++11 -I../ARToolKit/include -c
-CXXLDL := -L../ARToolKit/lib -lARgsub -lARvideo -lAR -lGL -lGLU -lglut -lm 
+CXXFLG := -Wall -std=c++14 -I$(ARTOOLKITPATH)include -c -fPIC
+CXXLDL := -L$(ARTOOLKITPATH)lib -lARvideo -lARgsub -lAR -lGL -lGLU -lglut -lm 
 
-CXXC := clang++
+all: debug
 
-all: Game
+debug: CXXC := clang++
+debug: CXXFLG += -O2 -DDEBUG -g
+debug: Game
+
+release: CXXC := g++
+release: Game
 
 dirs:
 	mkdir -p $(DIRSRC) $(DIROBJ) $(DIREXE) $(DIRCFG) $(DIRDOC) $(DIRRES) $(DIRMDL)
 
-Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o
+Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o $(DIROBJ)Pattern.cpp.o
 	$(CXXC) -o $(DIREXE)$@ $^ $(CXXLDL)
 
 Docs:

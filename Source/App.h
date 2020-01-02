@@ -5,6 +5,10 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <vector>
+
+#include "Pattern.h"
+#include "ConfigFile.h"
 
 
 /**
@@ -27,18 +31,15 @@ using namespace this_thread;
 using Clock = system_clock;
 
 /**
- * \enum LoopFlag is an enum used to decide what to do in the next iteration
- * of the program.
- **/
-enum class LoopFlag : uint8_t 
-{ 
-    Exit        = 0,
-    Continue    = 1,
-    Pause       = 2,
-    MAX         = 3
-};
-
-
+ * @brief Class to encapsulate the main workflow of the application.
+ * 
+ * The App class is used as a wrapper to control the frametimes, store 
+ * global variables and define workflow functions.
+ * 
+ * \param configFilePath is the path of the .cfg or .ini file that 
+ * specifies the configuration of the class.
+ * 
+ */
 class App
 {
 public:
@@ -47,23 +48,27 @@ public:
 
     ~App ();
 
-    App (App &&) = delete;
+    App (App &&) = default; 
 
-    App (const App &) = delete;
+    App (const App &) = default;
 
-    App &&operator= (App &&) = delete;
+    //App &&operator= (App &&) = default;
 
-    App &operator= (const App &) = delete;
+    App &operator= (const App &) = default;
 
-    int Run (int argc, char *argv[]);
+    void Run ();
 
-    virtual int Tick(float Delta);
+    virtual void Tick (float elapsedTime);
 
-    virtual int BeginPlay();
+    virtual void BeginPlay (int argc, char *argv[]);
 
 protected:
 
-    LoopFlag loopFlag;
+    ConfigFile configuration;
+
+    vector<Pattern> usedPatterns;
+
+    bool finished;
 
 private:
 
@@ -72,6 +77,16 @@ private:
     uint16_t zBufferSize;
 
     float targetFramerate;
+
+    int cameraSizeX;
+
+    int cameraSizeY;
+
+private:
+
+    void SetupVideoCapture();
+
+    void CreatePatterns();
 
     void Cleanup();
 
