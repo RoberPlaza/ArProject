@@ -1,0 +1,11 @@
+.vscode/
+
+Programs/*
+Build/*
+Docs/*
+
+*.o
+*.a
+*.lib
+*.obj
+*.dll
