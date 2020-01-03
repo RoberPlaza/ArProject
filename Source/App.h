@@ -1,13 +1,15 @@
 #ifndef RVYA_APP__
 #define RVYA_APP__
 
+#include <AR/ar.h>
+
 
 #include <string>
 #include <chrono>
 #include <thread>
 #include <vector>
 
-#include "Pattern.h"
+#include "Marker.h"
 #include "ConfigFile.h"
 
 
@@ -24,11 +26,15 @@
 constexpr int64_t FramerateToFrametime (float framerate)
     { return (1.f/framerate) * 1000 - 1; }
 
+
 using namespace std;
 using namespace chrono;
 using namespace this_thread;
 
-using Clock = system_clock;
+
+using StringList    = vector<string>;
+using Clock         = system_clock;
+
 
 /**
  * @brief Class to encapsulate the main workflow of the application.
@@ -46,29 +52,38 @@ public:
     
     App (const string &configFilePath = "./Config/Game.cfg");
 
-    ~App ();
+    virtual ~App ();
 
-    App (App &&) = default; 
+    App (App &&) = delete; 
 
-    App (const App &) = default;
+    App (const App &) = delete;
 
-    //App &&operator= (App &&) = default;
+    virtual App &&operator= (App &&) = delete;
 
-    App &operator= (const App &) = default;
+    virtual App &operator= (const App &) = delete;
 
+    /**
+     * @brief Main entrypoint of the application
+     * 
+     * The intended use is to create the App and Run it
+     * 
+     */
     void Run ();
 
-    virtual void Tick (float elapsedTime);
-
-    virtual void BeginPlay (int argc, char *argv[]);
+    void Setup (int argc, char *argv[]);
 
 protected:
 
     ConfigFile configuration;
 
-    vector<Pattern> usedPatterns;
+    vector<Marker> markers;
 
     bool finished;
+
+protected:
+
+    virtual void Tick (float elapsedTime);
+
 
 private:
 
@@ -81,6 +96,8 @@ private:
     int cameraSizeX;
 
     int cameraSizeY;
+
+    int errorThreshold;
 
 private:
 

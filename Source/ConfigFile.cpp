@@ -14,12 +14,20 @@ ConfigFile::ConfigFile(const string &filePath)
     if (file.fail()) return;
 
     while (getline(file, lineBuffer)) {
-        switch (lineBuffer.at(0)) {
-            case ' ': case '\n': case '\r': break;
-            case '[': moduleBuffer = GetModule(lineBuffer); break;
-            default: AddLine(lineBuffer, moduleBuffer); break;
+        if (lineBuffer.size() > 0) {
+            
+            switch (lineBuffer.at(0)) {
+                case ' ': case '\n': case '\r': moduleBuffer = ""; break;
+                case '[': moduleBuffer = GetModule(lineBuffer); break;
+                default: AddLine(lineBuffer, moduleBuffer); break;
+            }
         }
     }
+}
+
+ConfigFile::ConfigFile(const ConfigFile &other)
+{
+    this->configContent = other.configContent;
 }
 
 string ConfigFile::GetModule(const string &line)
@@ -60,4 +68,10 @@ void ConfigFile::AddLine(const string &line, const string &module)
 const string &ConfigFile::operator[]  (const string &key)
 {
     return configContent[key];
+}
+
+void ConfigFile::ToString() 
+{
+    for (const auto &val : configContent)
+        cout << val.first << " -> " << val.second << endl;
 }

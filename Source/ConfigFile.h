@@ -15,9 +15,13 @@ public:
 
     ConfigFile (const string &filePath = "./Config/Game.cfg");
 
+    ConfigFile (const ConfigFile &other);
+
     const string &operator[] (const string &key);
 
     const string &operator() (const string &key);
+
+    void ToString ();
 
 private:
 
@@ -26,6 +30,7 @@ private:
     string GetModule(const string &line);
 
     void AddLine(const string &line, const string &module);
+
 
 };
 

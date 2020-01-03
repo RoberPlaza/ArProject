@@ -4,34 +4,27 @@
 
 #include <memory>
 #include <iostream>
-#include <functional>
 
 
-using namespace std;
+typedef std::shared_ptr<App> GameApp;
+typedef std::shared_ptr<App> CreateApp;
 
 
-typedef unique_ptr<App> GameApp;
-typedef unique_ptr<App> CreateApp;
+void fuckingCallback();
 
 
-GameApp app;
-
-
-void fuckCallbacks();
+App *app;
 
 
 int main (int argc, char *argv[])
 {
-    app = make_unique<App>();
-    app->BeginPlay(argc, argv);
 
-    argMainLoop(nullptr, nullptr, fuckCallbacks);
+    app = new App();
+    app->Setup(argc, argv);
+    argMainLoop(nullptr, nullptr, fuckingCallback);
 
     return 0;
 }
 
 
-void fuckCallbacks()
-{
-    app->Run();
-}
+void fuckingCallback() { app->Run(); }
