@@ -69,9 +69,3 @@ const string &ConfigFile::operator[]  (const string &key)
 {
     return configContent[key];
 }
-
-void ConfigFile::ToString() 
-{
-    for (const auto &val : configContent)
-        cout << val.first << " -> " << val.second << endl;
-}

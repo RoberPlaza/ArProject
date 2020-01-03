@@ -7,24 +7,24 @@
 
 
 typedef std::shared_ptr<App> GameApp;
-typedef std::shared_ptr<App> CreateApp;
 
 
 void fuckingCallback();
 
 
-App *app;
+GameApp app;
 
 
 int main (int argc, char *argv[])
 {
 
-    app = new App();
-    app->Setup(argc, argv);
+    app = make_shared<App>(argc > 1 ? argv[1] : "Config/Game.cfg");
+    app->Setup();
+    
     argMainLoop(nullptr, nullptr, fuckingCallback);
 
     return 0;
 }
 
 
-void fuckingCallback() { app->Run(); }
+void fuckingCallback () { app->Run(); }

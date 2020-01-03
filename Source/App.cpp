@@ -6,13 +6,12 @@
 #include <AR/param.h>
 
 #include <chrono>
-#include <iostream>
-
+#ifdef DEBUG
+    #include <iostream>
+#endif
 
 App::App(const string &configFilePath) : configuration(configFilePath)
 {
-    printf("Hello\n");
-
     targetFramerate = stof(configuration["App.targetFramerate"]);
     zBufferSize     = stoi(configuration["App.zBufferSize"]);
     errorThreshold  = stoi(configuration["App.errorThreshold"]);
@@ -20,24 +19,20 @@ App::App(const string &configFilePath) : configuration(configFilePath)
     finished        = false;
 }
 
-App::~App() 
-{
-
-}
+App::~App() { };
 
 void App::Run()
 {
     beginTime = Clock::now();
 
     while (!finished) {
+        const Clock::time_point nextFrame = Clock::now()
+            + milliseconds(FramerateToFrametime(targetFramerate));
+        
         const float elapsedTime = duration_cast<microseconds>
             (Clock::now() - beginTime).count() / 1000000.0f;
 
         Tick(elapsedTime);
-
-        const Clock::time_point nextFrame = Clock::now()
-            + milliseconds(FramerateToFrametime(targetFramerate));
-
         sleep_until(nextFrame);
     }
 
@@ -46,33 +41,52 @@ void App::Run()
 
 void App::Tick(float elapsedTime)
 {
-    cout << "Elapsed Time: " << elapsedTime << endl;
-
-    ARUint8        *dataPtr = arVideoGetImage();
-    ARMarkerInfo   *markerInfo;
+    #ifdef DEBUG
+        cout << "Elapsed Time: " << elapsedTime << endl;
+    #endif // DEBUG
 
     int             detectedMarkers;
 
-    if (dataPtr == NULL) 
-        return;
+    ARMarkerInfo   *markerInfo;
+    ARUint8        *dataPtr         = arVideoGetImage();
+
+
+    if (dataPtr == NULL)  return;
 
     argDrawMode2D();
     argDispImage(dataPtr, 0, 0);
 
-    if (arDetectMarker(dataPtr, 100, &markerInfo, &detectedMarkers) < 0) {
+    if (arDetectMarker(dataPtr, errorThreshold, &markerInfo, &detectedMarkers) < 0) {
         Cleanup();
         throw runtime_error("Error reading camera");
     }
 
     arVideoCapNext();
 
+    argDrawMode3D();
+    argDraw3dCamera(0, 0);
+
+    renderer.PrepareNextFrame();
+
+    for (auto &marker : markers) {
+        marker.DetectYourself(&markerInfo, detectedMarkers);
+        if (marker.IsVisible()) {
+            glLoadMatrixd(marker.GetGlTransMat().data());
+            //glTranslatef(0.0, 0.0, 60.0);
+            //;
+            marker.DrawModel();
+        #ifdef DEBUG
+            const double distance = marker.DistanceToCamera();
+            cout << "Distance to camera: " <<  distance << endl;
+            cout << "Rotation of the Marker: " << marker.GetRoll() << endl;
+        #endif
+        }
+    }
     argSwapBuffers();
 }
 
-void App::Setup(int argc, char *argv[]) 
+void App::Setup() 
 {
-    glutInit(&argc, argv);
-
     SetupVideoCapture();
 
     CreatePatterns();
@@ -91,6 +105,9 @@ void App::SetupVideoCapture()
 {
     ARParam windowParam;
     ARParam cameraParam;
+
+    int cameraSizeX;
+    int cameraSizeY;
 
     char videoInput[17];
     sprintf(videoInput, "-dev=%s", configuration["camera"].c_str());
@@ -118,21 +135,27 @@ void App::CreatePatterns()
     char        keySizeX[50];
     char        keySizeY[50];
 
+    markers.reserve(markerCount);
+
     for (int i = 0; i < markerCount; i++) {
         sprintf(sizeKey, "Marker.%d.%s", i, "size");
         sprintf(pathKey, "Marker.%d.%s", i, "path");
         sprintf(keySizeX, "Marker.%d.%s", i, "center.x");
         sprintf(keySizeY, "Marker.%d.%s", i, "center.y");
 
-        Center offset = {stod(configuration[keySizeX]), 
-            stod(configuration[keySizeY])};
-
         markers.push_back( 
             Marker(
                 configuration[pathKey].c_str(), 
                 stod(configuration[sizeKey]), 
-                offset
+                stod(configuration[keySizeX]),
+                stod(configuration[keySizeY])
             )
         );
+
+        markers.back().DrawModel = std::bind(&Renderer::DrawTeapot, renderer);
     }
+
+    #ifdef DEBUG
+        cout << "Size of markers: " << markers.size() << endl;
+    #endif // DEBUG
 }

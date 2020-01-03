@@ -19,19 +19,23 @@ debug: CXXFLG += -O2 -DDEBUG -g
 debug: Game
 
 release: CXXC := g++
+release: clean
 release: Game
+
+.PHONY: Docs
 
 dirs:
 	mkdir -p $(DIRSRC) $(DIROBJ) $(DIREXE) $(DIRCFG) $(DIRDOC) $(DIRRES) $(DIRMDL)
 
-Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o $(DIROBJ)Marker.cpp.o
+Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o $(DIROBJ)Marker.cpp.o $(DIROBJ)Renderer.cpp.o
 	$(CXXC) -o $(DIREXE)$@ $^ $(CXXLDL)
 
 Docs:
 	doxygen Doxyfile
+	firefox $(DRIDOC)html/index.html
 
 $(DIROBJ)%.o: $(DIRSRC)%
 	$(CXXC) $(CXXFLG) $^ -o $@
 
 clean:
-	rm -rf Build/* Programs/*
+	rm -rf $(DIROBJ)* $(DIREXE)* $(DIRDOC)*

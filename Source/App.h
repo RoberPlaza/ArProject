@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "Marker.h"
+#include "Renderer.h"
 #include "ConfigFile.h"
 
 
@@ -51,15 +52,33 @@ class App
 public:
     
     App (const string &configFilePath = "./Config/Game.cfg");
-
+    
     virtual ~App ();
+    
+    /** Rule of 5 **/
 
+    /**
+     * @brief An App should not be moved.
+     * 
+     */
     App (App &&) = delete; 
 
+    /**
+     * @brief An App should not be cloned.
+     * 
+     */
     App (const App &) = delete;
 
+    /**
+     * @brief And app should not be move assigned.
+     * 
+     */
     virtual App &&operator= (App &&) = delete;
 
+    /**
+     * @brief And app should not be copy assigned.
+     * 
+     */
     virtual App &operator= (const App &) = delete;
 
     /**
@@ -70,41 +89,102 @@ public:
      */
     void Run ();
 
-    void Setup (int argc, char *argv[]);
+    /**
+     * @brief Preinitializa an application
+     * 
+     * This function needs to be called before the Run() function.
+     * Creates and initializes the ARToolkit library.
+     * 
+     */
+    void Setup ( );
 
 protected:
 
+    /**
+     * @brief Stores the configuration of the Application.
+     * 
+     */
     ConfigFile configuration;
 
+    /**
+     * @brief Markers used by the application
+     * 
+     */
     vector<Marker> markers;
 
+    /**
+     * @brief Flag to finish the execution of the application.
+     * 
+     */
     bool finished;
+
+    /**
+     * @brief Renderer that draw stuff.
+     * 
+     */
+    Renderer renderer;
 
 protected:
 
+    /**
+     * @brief Update function.
+     * 
+     * Function to be Called every frame. Can be overridable 
+     * in child classes.
+     * 
+     * @param elapsedTime is the time passed since the beginning 
+     * of the session. 
+     */
     virtual void Tick (float elapsedTime);
-
 
 private:
 
+    /**
+     * @brief Timestamp to calculate frametimes and elapsed times.
+     * 
+     */
     Clock::time_point beginTime;
 
+    /**
+     * @brief Size of the historical.
+     * 
+     */
     uint16_t zBufferSize;
 
+    /**
+     * @brief Sets the target framerate of the aplication.
+     * 
+     * Usually set between 15 and 60, the quality of the camera may 
+     * allow faster framerates. Be carefull, the CPU and GPU cost of 
+     * raising the number beyond 25 is very expensive.
+     * 
+     */
     float targetFramerate;
 
-    int cameraSizeX;
-
-    int cameraSizeY;
-
+    /**
+     * @brief Black and white threshold of ARToolKit detection algorithm. 
+     * 
+     */
     int errorThreshold;
 
 private:
 
+    /**
+     * @brief Initiializes ARToolKit camera.
+     * 
+     */
     void SetupVideoCapture();
 
+    /**
+     * @brief Instantiates all the Markers.
+     * 
+     */
     void CreatePatterns();
 
+    /**
+     * @brief Frees up resources.
+     * 
+     */
     void Cleanup();
 
 };
