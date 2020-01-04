@@ -9,7 +9,7 @@ DIRRES := Resources/
 DIRIMG := $(DIRRES)Images/
 DIRMDL := $(DIRRES)Models/
 
-CXXFLG := -Wall -std=c++14 -I$(ARTOOLKITPATH)include -c -fPIC
+CXXFLG := -Wall -std=c++11 -I$(ARTOOLKITPATH)include -c -fPIC
 CXXLDL := -L$(ARTOOLKITPATH)lib -lARvideo -lARgsub -lAR -lGL -lGLU -lglut -lm 
 
 all: debug
@@ -32,7 +32,7 @@ Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o $(DIROBJ)
 
 Docs:
 	doxygen Doxyfile
-	firefox $(DRIDOC)html/index.html
+	firefox $(DIRDOC)html/index.html
 
 $(DIROBJ)%.o: $(DIRSRC)%
 	$(CXXC) $(CXXFLG) $^ -o $@

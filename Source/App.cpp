@@ -5,11 +5,6 @@
 #include <AR/video.h>
 #include <AR/param.h>
 
-#include <chrono>
-#ifdef DEBUG
-    #include <iostream>
-#endif
-
 App::App(const string &configFilePath) : configuration(configFilePath)
 {
     targetFramerate = stof(configuration["App.targetFramerate"]);
@@ -68,17 +63,13 @@ void App::Tick(float elapsedTime)
 
     renderer.PrepareNextFrame();
 
-    for (auto &marker : markers) {
-        marker.DetectYourself(&markerInfo, detectedMarkers);
-        if (marker.IsVisible()) {
-            glLoadMatrixd(marker.GetGlTransMat().data());
-            //glTranslatef(0.0, 0.0, 60.0);
-            //;
-            marker.DrawModel();
+    for (auto &marker : wallMarkers) {
+        marker->DetectYourself(&markerInfo, detectedMarkers);
+        if (marker->IsVisible()) {
         #ifdef DEBUG
-            const double distance = marker.DistanceToCamera();
+            const double distance = marker->DistanceToCamera();
             cout << "Distance to camera: " <<  distance << endl;
-            cout << "Rotation of the Marker: " << marker.GetRoll() << endl;
+            cout << "Rotation of the Marker: " << marker->GetRoll() << endl;
         #endif
         }
     }
@@ -88,9 +79,7 @@ void App::Tick(float elapsedTime)
 void App::Setup() 
 {
     SetupVideoCapture();
-
     CreatePatterns();
-
     arVideoCapStart();
 }
 
@@ -128,34 +117,36 @@ void App::SetupVideoCapture()
 
 void App::CreatePatterns()
 {
-    const int   markerCount = stoi(configuration["App.patternCount"]);
+    char            wallMarkerPath[50];
+    
+    const int       wallCount       =   stod(configuration["Marker.wall.count"      ]);
+    const double    wallMarkerSize  =   stod(configuration["Marker.wall.size"       ]);
+    const double    wallMarkerDispX =   stod(configuration["Marker.wall.center.x"   ]);
+    const double    wallMarkerDispY =   stod(configuration["Marker.wall.center.y"   ]);
 
-    char        sizeKey[50];
-    char        pathKey[50];
-    char        keySizeX[50];
-    char        keySizeY[50];
-
-    markers.reserve(markerCount);
-
-    for (int i = 0; i < markerCount; i++) {
-        sprintf(sizeKey, "Marker.%d.%s", i, "size");
-        sprintf(pathKey, "Marker.%d.%s", i, "path");
-        sprintf(keySizeX, "Marker.%d.%s", i, "center.x");
-        sprintf(keySizeY, "Marker.%d.%s", i, "center.y");
-
-        markers.push_back( 
-            Marker(
-                configuration[pathKey].c_str(), 
-                stod(configuration[sizeKey]), 
-                stod(configuration[keySizeX]),
-                stod(configuration[keySizeY])
+    for (int i = 0; i < wallCount; i++) {
+        sprintf(wallMarkerPath, "Marker.wall.%d.path", i);
+        wallMarkers.push_back(
+            make_shared<Marker>(
+                configuration[wallMarkerPath].c_str(),
+                wallMarkerSize,
+                wallMarkerDispX,
+                wallMarkerDispY
             )
         );
-
-        markers.back().DrawModel = std::bind(&Renderer::DrawTeapot, renderer);
     }
 
-    #ifdef DEBUG
-        cout << "Size of markers: " << markers.size() << endl;
-    #endif // DEBUG
+    configMarker = make_shared<Marker>(
+        configuration       ["Marker.config.path"].c_str(),
+        stod(configuration  ["Marker.config.size"       ]),
+        stod(configuration  ["Marker.config.center.y"   ]),
+        stod(configuration  ["Marker.config.center.x"   ])
+    );
+
+    configMarker = make_shared<Marker> (
+        configuration       ["Marker.shield.path"].c_str(),
+        stod(configuration  ["Marker.shield.size"       ]),
+        stod(configuration  ["Marker.shield.center.y"   ]),
+        stod(configuration  ["Marker.shield.center.x"   ])
+    );
 }

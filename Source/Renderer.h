@@ -4,19 +4,7 @@
 
 #include <GL/glut.h>
 
-
-/**
- * @brief 
- * 
- */
-enum class Figure 
-{
-    Arrow,
-    Tower,
-    Wall,
-    Shield,
-    MAX
-};
+#include "Common.h"
 
 
 /**
@@ -58,6 +46,14 @@ public:
      * 
      */
     void DrawTeapot();
+
+
+    /**
+     * @brief Draws a wall that spawns to a point in space.
+     * 
+     * @param wallEnd Position were the wall ends
+     */
+    void DrawWall(const Vector &wallEnd);
     
 };
 

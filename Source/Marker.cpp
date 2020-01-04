@@ -7,10 +7,6 @@
 #include <cmath>
 #include <stdexcept>
 
-#ifdef DEBUG
-#include <iostream>
-using namespace std;
-#endif
 
 Marker::Marker(
     const char *pattFilePath, 
@@ -125,4 +121,9 @@ double Marker::GetRoll() const
 const Transform &Marker::GetGlTransMat() const
 {
     return transform;
+}
+
+Vector Marker::GetLocation() const 
+{
+    return {transform[12], transform[13], transform[14]};
 }

@@ -3,15 +3,15 @@
 
 #include <AR/ar.h>
 
-
-#include <string>
-#include <chrono>
-#include <thread>
-#include <vector>
-
+#include "Common.h"
 #include "Marker.h"
 #include "Renderer.h"
 #include "ConfigFile.h"
+
+#include <vector>
+#include <string>
+#include <chrono>
+#include <thread>
 
 
 /**
@@ -31,10 +31,6 @@ constexpr int64_t FramerateToFrametime (float framerate)
 using namespace std;
 using namespace chrono;
 using namespace this_thread;
-
-
-using StringList    = vector<string>;
-using Clock         = system_clock;
 
 
 /**
@@ -96,7 +92,7 @@ public:
      * Creates and initializes the ARToolkit library.
      * 
      */
-    void Setup ( );
+    void Setup ();
 
 protected:
 
@@ -104,25 +100,37 @@ protected:
      * @brief Stores the configuration of the Application.
      * 
      */
-    ConfigFile configuration;
+    ConfigFile      configuration;
 
     /**
-     * @brief Markers used by the application
+     * @brief Markers used to set the walls of the aplication.
      * 
      */
-    vector<Marker> markers;
+    vector<ArMarker> wallMarkers;
+
+    /**
+     * @brief Marker that represents the shield.
+     * 
+     */
+    ArMarker        shieldMarker;
+
+    /**
+     * @brief Speed configuration marker.
+     * 
+     */
+    ArMarker        configMarker;
 
     /**
      * @brief Flag to finish the execution of the application.
      * 
      */
-    bool finished;
+    bool            finished;
 
     /**
      * @brief Renderer that draw stuff.
      * 
      */
-    Renderer renderer;
+    Renderer        renderer;
 
 protected:
 

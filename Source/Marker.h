@@ -4,14 +4,10 @@
 
 #include <AR/ar.h>
 
+#include "Common.h"
+
 #include <array>
-#include <functional>
-
-
-using   namespace               std;
-
-typedef std::array<double, 16>  Transform;
-typedef std::array<double, 16>  Center;
+#include <memory>
 
 
 /**
@@ -126,9 +122,12 @@ public:
      */
     const Transform &GetGlTransMat() const;
 
-public:
-
-    function<void()> DrawModel;
+    /**
+     * @brief Gets the location of the marker in the 3d world.
+     * 
+     * @return Vector with the x, y and z components of the position.
+     */
+    Vector GetLocation() const;
 
 private:
 
@@ -173,5 +172,10 @@ private:
     bool            isVisible;
     
 };
+
+
+typedef shared_ptr<Marker> ArMarker;
+typedef shared_ptr<Marker> CreateMarker;
+
 
 #endif // !RVYA_MARKER__

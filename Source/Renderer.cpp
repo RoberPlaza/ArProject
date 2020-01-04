@@ -1,9 +1,5 @@
 #include "Renderer.h"
 
-#include <vector>
-
-using namespace std;
-
 
 Renderer::Renderer()
 {
@@ -16,10 +12,12 @@ Renderer::Renderer()
 
 void Renderer::DrawArrow() 
 {
+    glEnable        (GL_DEPTH_TEST      );
     glPushMatrix    (                   );
     glScalef        (1.0f, 0.01f, 0.01f );
     glutSolidCube   (100.f              );
     glPopMatrix     (                   );
+    glDisable       (GL_DEPTH_TEST      );
 }
 
 void Renderer::DrawTeapot()
@@ -37,4 +35,9 @@ void Renderer::PrepareNextFrame()
     glClear         (GL_DEPTH_BUFFER_BIT);
     glDepthFunc     (GL_LEQUAL          );
     glMatrixMode    (GL_MODELVIEW       );
+}
+
+void Renderer::DrawWall(const std::array<double,3> &wallEnd)
+{
+
 }
