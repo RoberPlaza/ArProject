@@ -1,3 +1,15 @@
+/**
+ * @file Marker.h
+ * @author Roberto Plaza Romero (Roberto.Plaza@alu.uclm.es)
+ * @brief This file declares a class used to encapsulate the 
+ * functions of a marker.
+ * @version 1.0
+ * @date 2020-01-04
+ * 
+ * @copyright Copyright (c) 2020 GPL v3.0
+ * 
+ */
+
 #ifndef RVYA_MARKER__
 #define RVYA_MARKER__
 
@@ -174,8 +186,13 @@ private:
 };
 
 
+/**
+ * @note Several classes need to use a reference to a marker, 
+ * in order to prevent possible problems, the intended way to 
+ * instantiate a Marker is dynamically using smart pointers.
+ * 
+ */
 typedef shared_ptr<Marker> ArMarker;
-typedef shared_ptr<Marker> CreateMarker;
 
 
 #endif // !RVYA_MARKER__

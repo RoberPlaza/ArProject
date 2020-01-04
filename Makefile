@@ -27,7 +27,7 @@ release: Game
 dirs:
 	mkdir -p $(DIRSRC) $(DIROBJ) $(DIREXE) $(DIRCFG) $(DIRDOC) $(DIRRES) $(DIRMDL)
 
-Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o $(DIROBJ)Marker.cpp.o $(DIROBJ)Renderer.cpp.o
+Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o $(DIROBJ)Marker.cpp.o $(DIROBJ)Renderer.cpp.o $(DIROBJ)GameMode.cpp.o
 	$(CXXC) -o $(DIREXE)$@ $^ $(CXXLDL)
 
 Docs:

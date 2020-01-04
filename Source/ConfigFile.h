@@ -1,3 +1,14 @@
+/**
+ * @file ConfigFile.h
+ * @author Roberto Plaza Romero (Roberto.Plaza@alu.uclm.es)
+ * @brief Specification of a class to make easier the access to config files.
+ * @version 1.0
+ * @date 2020-01-04
+ * 
+ * @copyright Copyright (c) 2020 GPL v3.0
+ * 
+ */
+
 #ifndef CFG_FILE__
 #define CFG_FILE__
 

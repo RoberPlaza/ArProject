@@ -1,3 +1,13 @@
+/**
+ * @file App.cpp
+ * @author Roberto Plaza Romero (Roberto.Plaza@alu.uclm.es)
+ * @brief Code of the specification found in App.h
+ * @version 1.0
+ * @date 2020-01-04
+ * 
+ * @copyright Copyright (c) 2020 GPL v3.0
+ * 
+ */
 #include "App.h"
 
 #include <GL/glut.h>
@@ -18,28 +28,19 @@ App::~App() { };
 
 void App::Run()
 {
-    beginTime = Clock::now();
+    const float elapsedTime = duration_cast<microseconds>   // const provides a compiler optimization
+        (Clock::now() - beginTime).count() / 1000000.0f;
 
-    while (!finished) {
-        const Clock::time_point nextFrame = Clock::now()
-            + milliseconds(FramerateToFrametime(targetFramerate));
-        
-        const float elapsedTime = duration_cast<microseconds>
-            (Clock::now() - beginTime).count() / 1000000.0f;
+    Tick(elapsedTime);
+    
+    const Clock::time_point nextFrame = Clock::now() 
+        + milliseconds(FramerateToFrametime(targetFramerate));
 
-        Tick(elapsedTime);
-        sleep_until(nextFrame);
-    }
-
-    Cleanup();
+    sleep_until(nextFrame);
 }
 
 void App::Tick(float elapsedTime)
 {
-    #ifdef DEBUG
-        cout << "Elapsed Time: " << elapsedTime << endl;
-    #endif // DEBUG
-
     int             detectedMarkers;
 
     ARMarkerInfo   *markerInfo;
@@ -63,16 +64,11 @@ void App::Tick(float elapsedTime)
 
     renderer.PrepareNextFrame();
 
-    for (auto &marker : wallMarkers) {
+    for (auto &marker : markers)
         marker->DetectYourself(&markerInfo, detectedMarkers);
-        if (marker->IsVisible()) {
-        #ifdef DEBUG
-            const double distance = marker->DistanceToCamera();
-            cout << "Distance to camera: " <<  distance << endl;
-            cout << "Rotation of the Marker: " << marker->GetRoll() << endl;
-        #endif
-        }
-    }
+    
+    gameMode.Update(elapsedTime);
+
     argSwapBuffers();
 }
 
@@ -81,6 +77,8 @@ void App::Setup()
     SetupVideoCapture();
     CreatePatterns();
     arVideoCapStart();
+
+    beginTime = Clock::now();
 }
 
 void App::Cleanup() 
@@ -126,7 +124,8 @@ void App::CreatePatterns()
 
     for (int i = 0; i < wallCount; i++) {
         sprintf(wallMarkerPath, "Marker.wall.%d.path", i);
-        wallMarkers.push_back(
+
+        markers.push_back(
             make_shared<Marker>(
                 configuration[wallMarkerPath].c_str(),
                 wallMarkerSize,
@@ -134,19 +133,29 @@ void App::CreatePatterns()
                 wallMarkerDispY
             )
         );
+
+        gameMode.wallMarkers.push_back(markers.back());
     }
 
-    configMarker = make_shared<Marker>(
-        configuration       ["Marker.config.path"].c_str(),
-        stod(configuration  ["Marker.config.size"       ]),
-        stod(configuration  ["Marker.config.center.y"   ]),
-        stod(configuration  ["Marker.config.center.x"   ])
+    markers.push_back(
+        make_shared<Marker>(
+            configuration       ["Marker.config.path"].c_str(),
+            stod(configuration  ["Marker.config.size"       ]),
+            stod(configuration  ["Marker.config.center.y"   ]),
+            stod(configuration  ["Marker.config.center.x"   ])
+        )
     );
 
-    configMarker = make_shared<Marker> (
-        configuration       ["Marker.shield.path"].c_str(),
-        stod(configuration  ["Marker.shield.size"       ]),
-        stod(configuration  ["Marker.shield.center.y"   ]),
-        stod(configuration  ["Marker.shield.center.x"   ])
+    gameMode.configMarker = markers.back();
+
+    markers.push_back(
+        make_shared<Marker> (
+            configuration       ["Marker.shield.path"].c_str(),
+            stod(configuration  ["Marker.shield.size"       ]),
+            stod(configuration  ["Marker.shield.center.y"   ]),
+            stod(configuration  ["Marker.shield.center.x"   ])
+        )
     );
+
+    gameMode.shieldMarker = markers.back();
 }

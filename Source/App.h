@@ -1,3 +1,15 @@
+/**
+ * @file App.h
+ * @author Roberto Plaza Romero (Roberto.Plaza@alu.uclm.es)
+ * @brief Defines a class called App, used to carry on the main 
+ * flow of an AR application.
+ * @version 1.0
+ * @date 2020-01-04
+ * 
+ * @copyright Copyright (c) 2020 GPL v3.0
+ * 
+ */
+
 #ifndef RVYA_APP__
 #define RVYA_APP__
 
@@ -6,6 +18,7 @@
 #include "Common.h"
 #include "Marker.h"
 #include "Renderer.h"
+#include "GameMode.h"
 #include "ConfigFile.h"
 
 #include <vector>
@@ -97,44 +110,6 @@ public:
 protected:
 
     /**
-     * @brief Stores the configuration of the Application.
-     * 
-     */
-    ConfigFile      configuration;
-
-    /**
-     * @brief Markers used to set the walls of the aplication.
-     * 
-     */
-    vector<ArMarker> wallMarkers;
-
-    /**
-     * @brief Marker that represents the shield.
-     * 
-     */
-    ArMarker        shieldMarker;
-
-    /**
-     * @brief Speed configuration marker.
-     * 
-     */
-    ArMarker        configMarker;
-
-    /**
-     * @brief Flag to finish the execution of the application.
-     * 
-     */
-    bool            finished;
-
-    /**
-     * @brief Renderer that draw stuff.
-     * 
-     */
-    Renderer        renderer;
-
-protected:
-
-    /**
      * @brief Update function.
      * 
      * Function to be Called every frame. Can be overridable 
@@ -145,37 +120,7 @@ protected:
      */
     virtual void Tick (float elapsedTime);
 
-private:
-
-    /**
-     * @brief Timestamp to calculate frametimes and elapsed times.
-     * 
-     */
-    Clock::time_point beginTime;
-
-    /**
-     * @brief Size of the historical.
-     * 
-     */
-    uint16_t zBufferSize;
-
-    /**
-     * @brief Sets the target framerate of the aplication.
-     * 
-     * Usually set between 15 and 60, the quality of the camera may 
-     * allow faster framerates. Be carefull, the CPU and GPU cost of 
-     * raising the number beyond 25 is very expensive.
-     * 
-     */
-    float targetFramerate;
-
-    /**
-     * @brief Black and white threshold of ARToolKit detection algorithm. 
-     * 
-     */
-    int errorThreshold;
-
-private:
+    private:
 
     /**
      * @brief Initiializes ARToolKit camera.
@@ -195,7 +140,76 @@ private:
      */
     void Cleanup();
 
+protected:
+
+    /**
+     * @brief Game mode of the application.
+     * 
+     */
+    GameMode            gameMode;
+
+    /**
+     * @brief Stores the configuration of the Application.
+     * 
+     */
+    ConfigFile          configuration;
+
+    /**
+     * @brief Reference to all the markers used in the application.
+     * 
+     */
+    vector<ArMarker>    markers;
+
+    /**
+     * @brief Flag to finish the execution of the application.
+     * 
+     */
+    bool                finished;
+
+    /**
+     * @brief Renderer that draw stuff.
+     * 
+     */
+    Renderer            renderer;
+
+private:
+
+    /**
+     * @brief Timestamp of the beginning of the game.
+     * 
+     */
+    Clock::time_point   beginTime;
+
+    /**
+     * @brief Size of the historical.
+     * 
+     */
+    uint16_t            zBufferSize;
+
+    /**
+     * @brief Sets the target framerate of the aplication.
+     * 
+     * Usually set between 15 and 60, the quality of the camera may 
+     * allow faster framerates. Be carefull, the CPU and GPU cost of 
+     * raising the number beyond 25 is very expensive.
+     * 
+     */
+    float               targetFramerate;
+
+    /**
+     * @brief Black and white threshold of ARToolKit detection algorithm. 
+     * 
+     */
+    int                 errorThreshold;
+
 };
+
+
+/**
+ * @brief Smart handler for an App object.
+ * 
+ */
+typedef std::shared_ptr<App> GameApp;
 
 
 #endif // !RVYA_APP__

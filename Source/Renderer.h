@@ -1,3 +1,13 @@
+/**
+ * @file Renderer.h
+ * @author Roberto Plaza Romero (Roberto.Plaza@alu.uclm.es)
+ * @brief This file specifies a Renderer class, used to draw things.
+ * @version 1.0
+ * @date 2020-01-04
+ * 
+ * @copyright Copyright (c) 2020 GLP v3.0
+ * 
+ */
 #ifndef RVYA_RENDERER__
 #define RVYA_RENDERER__
 
