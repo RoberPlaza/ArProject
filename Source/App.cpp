@@ -73,6 +73,17 @@ void App::Tick(float elapsedTime)
     
     gameMode.Update(elapsedTime);
 
+    for (auto &marker : markers) {
+        if (marker->IsVisible()) {
+            glPushMatrix();
+            glLoadMatrixd(marker->GetGlTransMat().data());
+
+            renderer.DrawTeapot();
+
+            glPopMatrix();
+        }
+    }
+
     argSwapBuffers();
 }
 

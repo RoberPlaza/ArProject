@@ -11,6 +11,8 @@
 
 #include "GameMode.h"
 
+#include <GL/gl.h>
+
 #include <iostream>
 
 

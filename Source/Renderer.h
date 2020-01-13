@@ -61,9 +61,10 @@ public:
     /**
      * @brief Draws a wall that spawns to a point in space.
      * 
-     * @param wallEnd Position were the wall ends
+     * @param wallBegin Is the position in space where the wall begins.
+     * @param wallEnd Position were the wall ends.
      */
-    void DrawWall(const Vector &wallEnd);
+    void DrawWall(const Vector &wallBegin, const Vector &wallEnd);
     
 };
 

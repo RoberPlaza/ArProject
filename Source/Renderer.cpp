@@ -34,10 +34,9 @@ void Renderer::DrawArrow()
 void Renderer::DrawTeapot()
 {
     glEnable        (GL_DEPTH_TEST      );
-    glTranslatef    (0.0f, 0.0f, 50.0f  );
     glRotatef       (90.0, 1.0, 0.0, 0.0);
     glColor3f       (1.0f, 1.0f, 1.0f   );
-    glutWireTeapot  (100.f              );
+    glutWireTeapot  (80.f               );
     glDisable       (GL_DEPTH_TEST      );
 }
 
@@ -48,7 +47,7 @@ void Renderer::PrepareNextFrame()
     glMatrixMode    (GL_MODELVIEW       );
 }
 
-void Renderer::DrawWall(const std::array<double,3> &wallEnd)
+void Renderer::DrawWall(const Vector &wallBegin, const Vector &wallEnd)
 {
 
 }
