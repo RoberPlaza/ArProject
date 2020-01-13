@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2020 GPL v3.0
  * 
  */
+
 #include "App.h"
 
 #include <GL/glut.h>
@@ -17,11 +18,14 @@
 
 App::App(const string &configFilePath) : configuration(configFilePath)
 {
-    targetFramerate = stof(configuration["App.targetFramerate"]);
-    zBufferSize     = stoi(configuration["App.zBufferSize"]);
-    errorThreshold  = stoi(configuration["App.errorThreshold"]);
+    gameMode.SetLives   ( stoi(configuration["GameMode.lives"])     );
 
-    finished        = false;
+    gameMode.configTime = stof(configuration["GameMode.configTime"] );
+    targetFramerate     = stof(configuration["App.targetFramerate"] );
+    zBufferSize         = stoi(configuration["App.zBufferSize"]     );
+    errorThreshold      = stoi(configuration["App.errorThreshold"]  );
+
+    finished            = false;
 }
 
 App::~App() { };

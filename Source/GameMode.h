@@ -79,6 +79,13 @@ public:
      */
     virtual void Update(float elapsedTime);
 
+    /**
+     * @brief Set the Lives of the player.
+     * 
+     * @param newLives How many lives the user has.
+     */
+    void SetLives(int newLives);
+
 private:
 
     /**
@@ -121,6 +128,19 @@ public:
      * 
      */
     ArMarker        configMarker;
+
+    /**
+     * @brief Number of seconds to wait in order to start the game
+     * and stop configuring the application.
+     * 
+     */
+    float           configTime;
+
+    /**
+     * @brief Times the user can fail before the game ends.
+     * 
+     */
+    int             currentLives;
 
 private:
 

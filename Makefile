@@ -9,7 +9,7 @@ DIRRES := Resources/
 DIRIMG := $(DIRRES)Images/
 DIRMDL := $(DIRRES)Models/
 
-CXXFLG := -Wall -std=c++11 -I$(ARTOOLKITPATH)include -c -fPIC
+CXXFLG := -Wall -std=c++11 -I$(ARTOOLKITPATH)include -c#-fPIC #uncomment in case of incompatibility
 CXXLDL := -L$(ARTOOLKITPATH)lib -lARvideo -lARgsub -lAR -lGL -lGLU -lglut -lm 
 
 all: debug

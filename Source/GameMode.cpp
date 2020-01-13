@@ -24,6 +24,11 @@ GameMode::~GameMode()
 
 }
 
+void GameMode::SetLives(int newLives)
+{
+    currentLives = newLives;
+}
+
 void GameMode::Update(float elapsedTime)
 {
     switch (gameState) {
@@ -41,6 +46,7 @@ void GameMode::Update(float elapsedTime)
 
         default:
             gameState = GameState::FindingWalls;
+            break;
     }
 }
 
@@ -53,7 +59,7 @@ void GameMode::FindWalls(float elapsedTime)
             visibleMarkers++;
 
     if (visibleMarkers >= wallMarkers.size()) {
-        cout << "Select difficulty" << endl;
+        cout << "Selected difficulty:" << endl;
         gameState = GameState::SelectingDifficulty;
         timeStamp = elapsedTime;
     }
@@ -61,7 +67,16 @@ void GameMode::FindWalls(float elapsedTime)
 
 void GameMode::SelectDifficulty(float elapsedTime)
 {
-    difficulty = configMarker->GetRoll();
+    if (configMarker->IsVisible()) {
+        difficulty = configMarker->GetRoll();
+        timeStamp = elapsedTime;
+        cout << "Difficulty: " << difficulty << endl;
+    } else {
+        if ((elapsedTime - timeStamp) >= configTime) {
+            cout << "Starting game." << endl;
+            gameState = GameState::Playing;
+        }
+    }
 }
 
 void GameMode::Play(float elapsedTime)

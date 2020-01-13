@@ -1,3 +1,14 @@
+/**
+ * @file Renderer.cpp
+ * @author Roberto Plaza Romero (Robertto.Plaza@alu.uclm.es)
+ * @brief Implementation of the file Renderer.h
+ * @version 1.0
+ * @date 2020-01-04
+ * 
+ * @copyright Copyright (c) 2020 GPL v3.0
+ * 
+ */
+
 #include "Renderer.h"
 
 
