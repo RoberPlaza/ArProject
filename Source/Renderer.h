@@ -64,7 +64,21 @@ public:
      * @param wallBegin Is the position in space where the wall begins.
      * @param wallEnd Position were the wall ends.
      */
-    void DrawWall(const Vector &wallBegin, const Vector &wallEnd);
+    void DrawWall(const Transform &wallBegin, const Transform &wallEnd);
+
+private:
+
+    /**
+     * @brief Function to be called before buffering vertices.
+     * 
+     */
+    void PreBuffering();
+
+    /**
+     * @brief Function to be called after buffering vertices.
+     * 
+     */
+    void PostBuffering();
     
 };
 

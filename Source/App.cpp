@@ -18,14 +18,16 @@
 
 App::App(const string &configFilePath) : configuration(configFilePath)
 {
-    gameMode.SetLives   ( stoi(configuration["GameMode.lives"])     );
+    gameMode.SetLives       ( stoi(configuration["GameMode.lives"])     );
+    Marker::framesToHidden  = stoi(configuration["App.framesToHidden"]  );
 
-    gameMode.configTime = stof(configuration["GameMode.configTime"] );
-    targetFramerate     = stof(configuration["App.targetFramerate"] );
-    zBufferSize         = stoi(configuration["App.zBufferSize"]     );
-    errorThreshold      = stoi(configuration["App.errorThreshold"]  );
+    gameMode.configTime     = stof(configuration["GameMode.configTime"] );
+    targetFramerate         = stof(configuration["App.targetFramerate"] );
+    zBufferSize             = stoi(configuration["App.zBufferSize"]     );
+    errorThreshold          = stoi(configuration["App.errorThreshold"]  );
 
-    finished            = false;
+    finished                = false;
+
 }
 
 App::~App() { };
@@ -63,9 +65,6 @@ void App::Tick(float elapsedTime)
 
     arVideoCapNext();
 
-    argDrawMode3D();
-    argDraw3dCamera(0, 0);
-
     renderer.PrepareNextFrame();
 
     for (auto &marker : markers)
@@ -73,17 +72,18 @@ void App::Tick(float elapsedTime)
     
     gameMode.Update(elapsedTime);
 
-    for (auto &marker : markers) {
-        if (marker->IsVisible()) {
-            glPushMatrix();
-            glLoadMatrixd(marker->GetGlTransMat().data());
+    if (markers[0]->IsVisible() && markers[1]->IsVisible())
+        renderer.DrawWall(markers[0]->GetGlTransMat(), markers[1]->GetGlTransMat());
+/*
+    for (const auto &marker : markers) {
+        glPushMatrix();
+        glLoadMatrixd(marker->GetGlTransMat().data());
+        
+        renderer.DrawTeapot();
 
-            renderer.DrawTeapot();
-
-            glPopMatrix();
-        }
+        glPopMatrix();
     }
-
+ */
     argSwapBuffers();
 }
 

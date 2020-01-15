@@ -141,6 +141,14 @@ public:
      */
     Vector GetLocation() const;
 
+public:
+
+    /**
+     * @brief Number of frames so that the marker is considered hidden.
+     * 
+     */
+    static int framesToHidden;
+
 private:
 
     /**
@@ -172,6 +180,15 @@ private:
     int             id;
 
     /**
+     * @brief Stores a number with the number of frames that the 
+     * marker was not found.
+     * 
+     * -1 in case it has never been visible.
+     * 
+     */
+    int             invisibleFrames;
+
+    /**
      * @brief Width in milimeters of the Marker.
      * 
      */
@@ -193,6 +210,12 @@ private:
  * 
  */
 typedef shared_ptr<Marker> ArMarker;
+
+/**
+ * @brief To be configured.
+ * 
+ */
+int Marker::framesToHidden;
 
 
 #endif // !RVYA_MARKER__

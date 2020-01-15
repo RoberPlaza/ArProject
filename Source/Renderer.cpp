@@ -10,6 +10,9 @@
  */
 
 #include "Renderer.h"
+#include "MarkerMath.h"
+
+#include <AR/gsub.h>
 
 
 Renderer::Renderer()
@@ -19,6 +22,21 @@ Renderer::Renderer()
     char   *argv[1]         = {engineName};
 
     glutInit(&argc, argv);
+}
+
+void Renderer::PreBuffering()
+{
+    argDrawMode3D   (                   );
+    argDraw3dCamera (0, 0               );
+    glClear         (GL_DEPTH_BUFFER_BIT);
+    glEnable        (GL_DEPTH_TEST      );
+    glDepthFunc     (GL_LEQUAL          );
+
+}
+
+void Renderer::PostBuffering()
+{
+    glDisable       (GL_DEPTH_TEST      );
 }
 
 void Renderer::DrawArrow() 
@@ -42,12 +60,25 @@ void Renderer::DrawTeapot()
 
 void Renderer::PrepareNextFrame()
 {
+    glDisable       (GL_DEPTH_BUFFER_BIT);
     glClear         (GL_DEPTH_BUFFER_BIT);
     glDepthFunc     (GL_LEQUAL          );
     glMatrixMode    (GL_MODELVIEW       );
 }
 
-void Renderer::DrawWall(const Vector &wallBegin, const Vector &wallEnd)
+void Renderer::DrawWall(const Transform &wallBegin, const Transform &wallEnd)
 {
+    #ifdef DEBUG
+        cout << "Drawing a wall" << endl;
+    #endif // DEBUG
+    PreBuffering();
+    glPushMatrix();
 
+    //for (const auto &component : wallBegin) cout << component << "," << endl;
+    //glTranslated(wallBegin[12], wallBegin[13], wallBegin[14]);
+    glLoadMatrixd(wallEnd.data());
+    DrawTeapot();
+
+    glPopMatrix();
+    PostBuffering();
 }

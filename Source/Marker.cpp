@@ -10,6 +10,7 @@
  */
 
 #include "Marker.h"
+#include "MarkerMath.h"
 
 #include <AR/ar.h>
 #include <AR/gsub.h>
@@ -34,6 +35,7 @@ Marker::Marker(
     displacement[0] = pattDispX;
     displacement[1] = pattDispY;
     isVisible       = false;
+    invisibleFrames = -1;
 }
 
 Marker::~Marker ( ) { };
@@ -63,15 +65,10 @@ void Marker::DetectYourself(ARMarkerInfo **markers, int count)
         arGetTransMat(markerInfo, displacement.data(), size, netMatrix);
         argConvGlpara(netMatrix, transform.data());
 
-        #ifdef DEBUG
-            cout << "[ " << transform[0] << ", " << transform[4] << ", " << transform[8] << ", " << transform[12] << "]" << endl;
-            cout << "[ " << transform[1] << ", " << transform[5] << ", " << transform[9] << ", " << transform[13] << "]" << endl;
-            cout << "[ " << transform[2] << ", " << transform[6] << ", " << transform[10] << ", " << transform[14] << "]" << endl;
-            cout << "[ " << transform[3] << ", " << transform[7] << ", " << transform[11] << ", " << transform[15] << "]" << endl;
-        #endif // DEBUG
-
+        invisibleFrames--;
         isVisible = true;
     } else {
+        invisibleFrames = (invisibleFrames == -1) ? -1 : invisibleFrames + 1;
         isVisible = false;
     }
 }
@@ -88,11 +85,7 @@ bool Marker::IsVisible() const
 
 double Marker::DistanceTo(const Transform &trans) const
 {
-    return sqrt(
-        (transform[12]  - trans[12] ) * (transform[12]  - trans[12] ) +
-        (transform[13]  - trans[13] ) * (transform[13]  - trans[13] ) +
-        (transform[14]  - trans[14] ) * (transform[14]  - trans[14] )
-    );
+    return MarkerMath::Distance(transform, trans);
 }
 
 double Marker::Distance(const Marker &other) const 
@@ -107,26 +100,17 @@ double Marker::DistanceToCamera() const
 
 double Marker::GetYaw() const 
 {
-    return (transform[0] == 1.0 || transform[0] == -1.0) 
-        ? atan2(transform[8], transform[14]) * 180/M_PI
-        : atan2(transform[2], transform[5])  * 180/M_PI;
+    return MarkerMath::GetYaw(transform);
 }
 
 double Marker::GetPitch() const
 {
-    return (transform[0] == 1.0 || transform[0] == -1.0) ? 0 : asin(1) * 180/M_PI;
+    return MarkerMath::GetPitch(transform);
 }
 
 double Marker::GetRoll() const
 {
-    std::array<double, 3>   vectorBuffer    = {transform[0], transform[1], transform[2]};
-    const double            module          = sqrt(
-        pow(vectorBuffer[0], 2) +
-        pow(vectorBuffer[1], 2) +
-        pow(vectorBuffer[2], 2)
-    );
-
-    return acos(transform[0]/module) * 180/M_PI;
+    return MarkerMath::GetRoll(transform);
 }
 
 const Transform &Marker::GetGlTransMat() const
