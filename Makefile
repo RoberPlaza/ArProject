@@ -12,7 +12,7 @@ DIRMDL := $(DIRRES)Models/
 CXXFLG := -Wall -std=c++11 -I$(ARTOOLKITPATH)include -c #-fPIC #uncomment in case of incompatibility
 CXXLDL := -L$(ARTOOLKITPATH)lib -lARvideo -lARgsub -lAR -lGL -lGLU -lglut -lm 
 
-all: debug
+all: release
 
 debug: CXXC := clang++
 debug: CXXFLG += -O2 -DDEBUG -g
@@ -27,7 +27,7 @@ release: Game
 dirs:
 	mkdir -p $(DIRSRC) $(DIROBJ) $(DIREXE) $(DIRCFG) $(DIRDOC) $(DIRRES) $(DIRMDL)
 
-Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o $(DIROBJ)Marker.cpp.o $(DIROBJ)Renderer.cpp.o $(DIROBJ)GameMode.cpp.o $(DIROBJ)MarkerMath.cpp.o
+Game: $(DIROBJ)Main.cpp.o $(DIROBJ)App.cpp.o $(DIROBJ)ConfigFile.cpp.o $(DIROBJ)Marker.cpp.o $(DIROBJ)Renderer.cpp.o $(DIROBJ)GameMode.cpp.o $(DIROBJ)MarkerMath.cpp.o $(DIROBJ)Colors.cpp.o
 	$(CXXC) -o $(DIREXE)$@ $^ $(CXXLDL)
 
 run:

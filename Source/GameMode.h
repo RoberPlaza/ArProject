@@ -19,6 +19,9 @@
 #include <vector>
 
 
+class App;
+
+
 /**
  * @brief Enum used to implement a State pattern in the GameMode Class
  * 
@@ -28,6 +31,7 @@ enum class GameState : uint8_t
     FindingWalls,           // The game is trying to find the walls of the board.
     SelectingDifficulty,    // Selecting the difficulty.
     Playing,                // Game is playing.
+    GameLost,               // Player has lost the game.
     Error,                  // Unwanted state.
     MAX                     // Enum encouraged practice.
 };
@@ -63,9 +67,10 @@ public:
     /**
      * @brief Construct a new Game Mode object
      * 
+     * @param app Application where the game mode is deployed.
      * @param maxLives Lives of the player.
      */
-    GameMode (int lives = 3);
+    GameMode (App *app, int lives = 3);
 
     /**
      * @brief Destroy the Gamemode object
@@ -102,6 +107,13 @@ public:
     int GetLives() const;
 
     /**
+     * @brief Gets the target wall of the game
+     * 
+     * @return int 
+     */
+    int GetTargetWall() const;
+
+    /**
      * @brief Gets the state of the game.
      * 
      * @return GameState 
@@ -130,6 +142,14 @@ private:
      * @param elapsedTime Time (in seconds) since the beginning of the game
      */
     void Play(float elapsedTime);
+
+    /**
+     * @brief Checks if the player did carry on the action correctly
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool IsPlayerSuccessful();
 
 public:
 
@@ -179,6 +199,12 @@ private:
     GameState       gameState;
 
     /**
+     * @brief Application where the game mode is deployed.
+     * 
+     */
+    App            *application;
+
+    /**
      * @brief Variable used to store different timestamps through the 
      * development of the game.
      * 
@@ -189,7 +215,19 @@ private:
      * @brief Difficulty of the game.
      * 
      */
-    double          difficulty;
+    double          timeToCarryOnAction;
+
+    /**
+     * @brief Objective of the player.
+     * 
+     */
+    int             nextObjective;
+
+    /**
+     * @brief Score of the player
+     * 
+     */
+    int             score               = 0;
 
 };
 

@@ -65,13 +65,20 @@ void Renderer::DrawTeapot()
     glDisable       (GL_DEPTH_TEST      );
 }
 
+void Renderer::DrawCube(double size)
+{
+    glEnable        (GL_DEPTH_TEST      );
+    glutSolidCube   (size               );
+    glDisable       (GL_DEPTH_TEST      );
+}
+
 void Renderer::DrawWall(double angle, double length, double size)
 {
 
     glEnable        (GL_DEPTH_TEST      );
     glPushMatrix    (                   );
     glRotated       (angle, 0, 0, 1     );
-    glTranslated    (size*2, 0., 0      );
+    glTranslated    (length*size/2.0 - size/2.0, 0., 0    );
     glScaled        (length, 1., 1.     );
     glutWireCube    (size               );
     glPopMatrix     (                   );
@@ -81,7 +88,6 @@ void Renderer::DrawWall(double angle, double length, double size)
 void Renderer::DrawWholeCircle()
 {
     glPushMatrix    (                   );
-    glColor3f       (1.f, 0.f, 0.f      );
     glutSolidSphere (8.0, 25, 25        );
     glPopMatrix     (                   );
 }
@@ -89,7 +95,6 @@ void Renderer::DrawWholeCircle()
 void Renderer::DrawEmptyCircle()
 {
     glPushMatrix    (                   );
-    glColor3f       (1.f, 0.f, 0.f      );
     glutWireSphere  (8.0, 25, 25        );
     glPopMatrix     (                   );
 }

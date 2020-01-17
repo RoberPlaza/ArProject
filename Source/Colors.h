@@ -20,7 +20,47 @@
 typedef struct Colors
 {
 
-    Color red = {1.0f, 0.0f, 0.0f};
+    /**
+     * @brief Color red, {255, 0, 0}
+     * 
+     */
+    static Color red;
+
+    /**
+     * @brief Color yellow, {255, 255, 0}
+     * 
+     */
+    static Color yellow;
+
+    /**
+     * @brief Color green, {0, 255, 0}
+     * 
+     */
+    static Color green;
+
+    /**
+     * @brief Color cyan, {0, 255, 255}
+     * 
+     */
+    static Color cyan;
+
+    /**
+     * @brief Color blue, {0, 0, 255}
+     * 
+     */
+    static Color blue;
+
+    /**
+     * @brief Color magenta, {255, 0, 255}
+     * 
+     */
+    static Color magenta;
+    
+    /**
+     * @brief Color white, {255, 255, 255}
+     * 
+     */
+    static Color white; 
 
 } Colors ;
 

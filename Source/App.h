@@ -91,21 +91,57 @@ public:
     virtual App &operator= (const App &) = delete;
 
     /**
-     * @brief Main entrypoint of the application
+     * @brief Main entrypoint of the application.
      * 
-     * The intended use is to create the App and Run it
+     * The intended use is to create the App and Run it.
      * 
      */
     void Run ();
 
     /**
-     * @brief Preinitializa an application
+     * @brief Preinitializa an application.
      * 
      * This function needs to be called before the Run() function.
      * Creates and initializes the ARToolkit library.
      * 
      */
     void Setup ();
+
+    /**
+     * @brief Ask if a certain position is at the left of the wall.
+     * 
+     * @param position we are quering about.
+     * @return true 
+     * @return false 
+     */
+    bool IsAtTheLeftOfTheWall(const Vector &position) const;
+
+    /**
+     * @brief Ask if a certain position is at the right of the wall.
+     * 
+     * @param position we are quering about.
+     * @return true 
+     * @return false 
+     */
+    bool IsAtTheRightOfTheWall(const Vector &position) const;
+
+    /**
+     * @brief Ask if a certain position is at the bottom of the wall.
+     * 
+     * @param position we are quering about.
+     * @return true 
+     * @return false 
+     */
+    bool IsAtTheBottomOfTheWall(const Vector &position) const;
+
+    /**
+     * @brief Ask if a certain position is at the bottom of the wall.
+     * 
+     * @param position we are quering about.
+     * @return true 
+     * @return false 
+     */
+    bool IsAtTheTopOfTheWall(const Vector &position) const;
 
 protected:
 
@@ -163,6 +199,12 @@ protected:
      * 
      */
     void DrawLives();
+
+    /**
+     * @brief Draws the shield if marker was found.
+     * 
+     */
+    void DrawShield();
 
 protected:
 

@@ -79,6 +79,13 @@ public:
     void DrawWall(double angle, double length, double size);
 
     /**
+     * @brief Draws a Cube
+     * 
+     * @param size of the cube
+     */
+    void DrawCube(double size);
+
+    /**
      * @brief Function to be called before buffering vertices.
      * 
      */

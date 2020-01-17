@@ -18,7 +18,8 @@
 #include <AR/video.h>
 #include <AR/param.h>
 
-App::App(const string &configFilePath) : configuration(configFilePath)
+App::App(const string &configFilePath) 
+    : gameMode(this), configuration(configFilePath) 
 {
     gameMode.SetLives       ( stoi(configuration["GameMode.lives"])     );
     Marker::framesToHidden  = stoi(configuration["App.framesToHidden"]  );
@@ -58,6 +59,10 @@ void App::Tick(float elapsedTime)
 
     renderer.PrepareNextFrame();
 
+    DrawShield();
+    
+    DrawLives();
+
     switch (gameMode.GetGameState())
     {
         case GameState::FindingWalls:
@@ -65,13 +70,16 @@ void App::Tick(float elapsedTime)
             break;
 
         case GameState::SelectingDifficulty:
-            DrawLives();
             DrawWallsFromMemory();
             break;
 
         case GameState::Playing:
-            DrawLives();
             DrawWallsFromMemory();
+            break;
+
+        case GameState::GameLost:
+            Cleanup();
+            exit(EXIT_SUCCESS);
             break;
 
         default:
@@ -255,15 +263,15 @@ void App::DrawWallsFromMarker()
         {
             const double    length  = (MarkerMath::Distance(
                 markers[i]->GetLocation(), markers[j]->GetLocation()) + 
-                markers[i]->GetSize()) * 2 / markers[i]->GetSize() ;
-            
+                markers[i]->GetSize()) / markers[i]->GetSize();
+
             double          angle   = MarkerMath::GetRoll(
                 markers[i]->GetLocation(), 
                 markers[j]->GetLocation()
             );
 
             switch (i)
-            {   /* Done */
+            { 
                 case 0:
                     angle = - 90 - angle;
                     break;
@@ -271,11 +279,11 @@ void App::DrawWallsFromMarker()
                 case 1:
                     angle = - 90 - angle;
                     break;
-                /* Done */
+
                 case 2:
                     angle = - 90 - angle;
                     break;
-                /* Done */
+
                 case 3:
                     angle = -angle + 180;
                     break;
@@ -283,17 +291,56 @@ void App::DrawWallsFromMarker()
 
             wallPositions[i] = markers[i]->GetGlTransMat();
 
+            renderer.BufferColor(Colors::white);
             renderer.BufferTransform(markers[i]->GetGlTransMat());
-            renderer.DrawWall(angle, length, markers[i]->GetSize()/2);
+            renderer.DrawWall(angle, length, markers[i]->GetSize());
         }
     }
 }
 
 void App::DrawWallsFromMemory()
 {
-    for (uint32_t wallIndex = 0; wallIndex < wallPositions.size(); wallIndex++)
+    for (uint32_t i = 0; i < wallPositions.size(); i++)
     {
+        const uint32_t  j               = (i + 1) % wallPositions.size();
 
+        const Vector    firstPosition   = 
+            {wallPositions[i][12], wallPositions[i][13], wallPositions[i][14]};
+
+        const Vector    secondPosition  = 
+            {wallPositions[j][12], wallPositions[j][13], wallPositions[j][14]};
+
+        const double    length          = (MarkerMath::Distance(
+            firstPosition, secondPosition) + 
+            markers[i]->GetSize()) / markers[i]->GetSize() ;
+
+        double          angle           = MarkerMath::GetRoll(
+            firstPosition, secondPosition);
+    
+        switch (i)
+        { 
+            case 0:
+                angle = - 90 - angle;
+                break;
+            
+            case 1:
+                angle = - 90 - angle;
+                break;
+
+            case 2:
+                angle = - 90 - angle;
+                break;
+
+            case 3:
+                angle = -angle + 180;
+                break;
+        }
+
+        renderer.BufferColor(gameMode.GetTargetWall() == (int) i 
+            ? Colors::green 
+            : Colors::blue);
+        renderer.BufferTransform(wallPositions[i]);
+        renderer.DrawWall(angle, length, markers[i]->GetSize());
     }
 }
 
@@ -301,22 +348,55 @@ void App::DrawLives()
 {
     if (markers[4]->IsVisible())
     {
+        int i = 0;
+
         renderer.BufferTransform(markers[4]->GetGlTransMat());
 
-        glTranslated(32.0, 0.0, 0.0);
+        glTranslated(9.0 * gameMode.GetLives(), 0.0, 0.0);
 
-        for (int i = 0; i < gameMode.GetMaxLives(); i++)
+        for (i = 0; i < gameMode.GetLives(); i++)
         {
-            glTranslated(-16.0, 0.0, 0.0);
-
-            if (i < gameMode.GetLives())
-            {
-                renderer.DrawWholeCircle();
-            }
-            else
-            {
-                renderer.DrawEmptyCircle();
-            }
+            glTranslated(-18.0, 0.0, 0.0);
+            renderer.BufferColor(Colors::red);
+            renderer.DrawWholeCircle();
         }
     }
+}
+
+void App::DrawShield()
+{
+    if (markers[5]->IsVisible())
+    {
+        renderer.BufferColor(Colors::cyan);
+        renderer.BufferTransform(markers[5]->GetGlTransMat());
+        renderer.DrawCube(markers[5]->GetSize());
+    }
+}
+
+bool App::IsAtTheLeftOfTheWall(const Vector &position) const
+{
+    return  position[0] < wallPositions[0][12] 
+            &&
+            position[0] < wallPositions[3][12];
+}
+
+bool App::IsAtTheRightOfTheWall(const Vector &position) const
+{
+    return  position[0] > wallPositions[1][12] 
+            &&
+            position[0] > wallPositions[2][12];
+}
+
+bool App::IsAtTheTopOfTheWall(const Vector &position) const
+{
+    return  position[1] > wallPositions[0][13]
+            &&
+            position[1] > wallPositions[1][13];
+}
+
+bool App::IsAtTheBottomOfTheWall(const Vector &position) const
+{
+    return  position[1] > wallPositions[2][13]
+            &&
+            position[1] > wallPositions[3][13];
 }
