@@ -17,7 +17,12 @@
 #include <AR/param.h>
 
 #include <cmath>
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
+
+
+int Marker::framesToHidden = 0;
 
 
 Marker::Marker(
@@ -40,37 +45,55 @@ Marker::Marker(
 
 Marker::~Marker ( ) { };
 
-void Marker::Tick(float elapsedTime)
+void Marker::ExtractData(ARMarkerInfo *info)
 {
-    
+    double netMatrix[3][4];
+
+    if (info) {
+        arGetTransMat(info, displacement.data(), size, netMatrix);
+        argConvGlpara(netMatrix, transform.data());
+
+        invisibleFrames = 0;
+        isVisible       = true;
+    } else {
+        transform       = Transform();
+        invisibleFrames = (invisibleFrames == -1) ? -1 : invisibleFrames + 1;
+        isVisible       = false;
+    }
 }
 
 void Marker::DetectYourself(ARMarkerInfo **markers, int count)  
 {
     int             i;
-    double          netMatrix[3][4];
     ARMarkerInfo   *markerInfo = nullptr;
 
     for ( i = 0; i < count ; i++) {
         if (markers[i]->id == id) {
-            if (!markerInfo) {
+            if (!markerInfo)  {
                 markerInfo = markers[i];
-            } else {
-                markerInfo = markerInfo->cf > markers[i]->cf ? markers[i] : markerInfo;
+            } else {  
+                markerInfo = markerInfo->cf < markers[i]->cf ? markers[i] : markerInfo;
             }
         }
     }
 
-    if (markerInfo != nullptr) { 
-        arGetTransMat(markerInfo, displacement.data(), size, netMatrix);
-        argConvGlpara(netMatrix, transform.data());
+    ExtractData(markerInfo);
+}
 
-        invisibleFrames--;
-        isVisible = true;
-    } else {
-        invisibleFrames = (invisibleFrames == -1) ? -1 : invisibleFrames + 1;
-        isVisible = false;
-    }
+string Marker::GetGlTransMatStr() const 
+{
+
+    stringstream ss;
+    ss << "[\n" << std::fixed << std::setprecision(2);
+
+    ss << "\t" << transform[0] << ",\t" << transform[4] << ",\t" << transform[8] << ",\t" << transform[12] << endl;
+    ss << "\t" << transform[1] << ",\t" << transform[5] << ",\t" << transform[9] << ",\t" << transform[13] << endl;
+    ss << "\t" << transform[2] << ",\t" << transform[6] << ",\t" << transform[10] << ",\t" << transform[14] << endl;
+    ss << "\t" << transform[3] << ",\t" << transform[7] << ",\t" << transform[11] << ",\t" << transform[15] << endl;
+    
+    ss << "]";
+    
+    return ss.str();
 }
 
 int Marker::GetId() const
@@ -81,6 +104,11 @@ int Marker::GetId() const
 bool Marker::IsVisible() const 
 {
     return isVisible;
+}
+
+bool Marker::HasBeenHidden() const
+{
+    return invisibleFrames > framesToHidden;
 }
 
 double Marker::DistanceTo(const Transform &trans) const

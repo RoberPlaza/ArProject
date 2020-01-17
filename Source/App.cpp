@@ -47,43 +47,25 @@ void App::Run()
 
 void App::Tick(float elapsedTime)
 {
-    int             detectedMarkers;
+    DetectMarkers();
 
-    ARMarkerInfo   *markerInfo;
-    ARUint8        *dataPtr         = arVideoGetImage();
-
-
-    if (dataPtr == NULL)  return;
-
-    argDrawMode2D();
-    argDispImage(dataPtr, 0, 0);
-
-    if (arDetectMarker(dataPtr, errorThreshold, &markerInfo, &detectedMarkers) < 0) {
-        Cleanup();
-        throw runtime_error("Error reading camera");
-    }
-
-    arVideoCapNext();
+    gameMode.Update(elapsedTime);
 
     renderer.PrepareNextFrame();
 
-    for (auto &marker : markers)
-        marker->DetectYourself(&markerInfo, detectedMarkers);
-    
-    gameMode.Update(elapsedTime);
+    renderer.DrawWholeCircle({0.0, 0.0, 0.0});
 
-    if (markers[0]->IsVisible() && markers[1]->IsVisible())
+    if (markers[0]->IsVisible() && markers[1]->IsVisible()) {
         renderer.DrawWall(markers[0]->GetGlTransMat(), markers[1]->GetGlTransMat());
-/*
-    for (const auto &marker : markers) {
-        glPushMatrix();
-        glLoadMatrixd(marker->GetGlTransMat().data());
-        
-        renderer.DrawTeapot();
+    } else
 
-        glPopMatrix();
+    for (const auto &marker : markers) {
+        if (marker->IsVisible()) {
+            renderer.BufferTransform(marker->GetGlTransMat());
+            renderer.DrawTeapot();
+        }
     }
- */
+
     argSwapBuffers();
 }
 
@@ -103,6 +85,51 @@ void App::Cleanup()
     argCleanup();
 }
 
+void App::DetectMarkers()
+{
+    int             detectedMarkers;
+    int             betterMatch;
+    int             markerIndex;
+    int             infoIndex;
+
+    ARMarkerInfo   *markerInfo;
+    ARUint8        *dataPtr         = arVideoGetImage();
+
+
+    if (dataPtr == NULL)  return;
+
+    argDrawMode2D();
+    argDispImage(dataPtr, 0, 0);
+
+    if (arDetectMarker(dataPtr, errorThreshold, &markerInfo, &detectedMarkers) < 0) {
+        Cleanup();
+        throw runtime_error("Error reading camera");
+    }
+
+    arVideoCapNext();
+
+    for (markerIndex = 0; markerIndex < markers.size(); markerIndex++) {
+        for (infoIndex = 0, betterMatch = -1; infoIndex < detectedMarkers; infoIndex++) {
+            if (markers[markerIndex]->GetId() == markerInfo[infoIndex].id) {
+                if (betterMatch == -1) {
+                    betterMatch = infoIndex;
+                }
+                
+                if (markerInfo[betterMatch].cf < markerInfo[infoIndex].cf) {
+                    betterMatch = infoIndex;
+                }
+            }
+
+            if (betterMatch != -1) {
+                markers[markerIndex]->ExtractData(&markerInfo[betterMatch]);
+            } else {
+                markers[markerIndex]->ExtractData(nullptr);
+            }
+        }
+    }
+
+}
+
 void App::SetupVideoCapture() 
 {
     ARParam windowParam;
@@ -111,7 +138,7 @@ void App::SetupVideoCapture()
     int cameraSizeX;
     int cameraSizeY;
 
-    char videoInput[17];
+    char videoInput[25];
     sprintf(videoInput, "-dev=%s", configuration["camera"].c_str());
 
     if (arVideoOpen(videoInput) < 0)

@@ -140,6 +140,12 @@ protected:
      */
     void Cleanup();
 
+    /**
+     * @brief Updates the markers.
+     * 
+     */
+    void DetectMarkers();
+
 protected:
 
     /**

@@ -86,6 +86,13 @@ public:
      */
     void SetLives(int newLives);
 
+    /**
+     * @brief Get the Lives from the player
+     * 
+     * @return int 
+     */
+    int GetLives() const;
+
 private:
 
     /**

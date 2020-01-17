@@ -57,6 +57,20 @@ public:
      */
     void DrawTeapot();
 
+    /**
+     * @brief Draws a whole circle in a given position.
+     * 
+     * @param screenPosition to draw a circle.
+     */
+    void DrawWholeCircle(const Vector &screenPosition);
+
+    /**
+     * @brief Draws an empty circle in a given position
+     * 
+     * @param screenPosition to draw a circle.
+     */
+    void DrawEmptyCircle(const Vector &screenPosition);
+
 
     /**
      * @brief Draws a wall that spawns to a point in space.
@@ -66,13 +80,13 @@ public:
      */
     void DrawWall(const Transform &wallBegin, const Transform &wallEnd);
 
-private:
-
     /**
      * @brief Function to be called before buffering vertices.
      * 
      */
-    void PreBuffering();
+    void BufferTransform(const Transform &transform);
+
+private:
 
     /**
      * @brief Function to be called after buffering vertices.

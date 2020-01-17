@@ -14,6 +14,17 @@
 
 #include <AR/gsub.h>
 
+#include <cmath>
+
+
+void Renderer::PrepareNextFrame()
+{
+    argDrawMode3D   (                   );
+    argDraw3dCamera (0, 0               );
+    glClear         (GL_DEPTH_BUFFER_BIT);
+    glEnable        (GL_DEPTH_TEST      );
+    glDepthFunc     (GL_LEQUAL          );
+}
 
 Renderer::Renderer()
 {
@@ -24,14 +35,10 @@ Renderer::Renderer()
     glutInit(&argc, argv);
 }
 
-void Renderer::PreBuffering()
+void Renderer::BufferTransform(const Transform &transform)
 {
-    argDrawMode3D   (                   );
-    argDraw3dCamera (0, 0               );
-    glClear         (GL_DEPTH_BUFFER_BIT);
-    glEnable        (GL_DEPTH_TEST      );
-    glDepthFunc     (GL_LEQUAL          );
-
+    glMatrixMode    (GL_MODELVIEW       );
+    glLoadMatrixd   (transform.data()   );
 }
 
 void Renderer::PostBuffering()
@@ -52,33 +59,39 @@ void Renderer::DrawArrow()
 void Renderer::DrawTeapot()
 {
     glEnable        (GL_DEPTH_TEST      );
+    glTranslatef    (0.0f, 0.0f, 60.0f  );
     glRotatef       (90.0, 1.0, 0.0, 0.0);
     glColor3f       (1.0f, 1.0f, 1.0f   );
     glutWireTeapot  (80.f               );
     glDisable       (GL_DEPTH_TEST      );
 }
 
-void Renderer::PrepareNextFrame()
-{
-    glDisable       (GL_DEPTH_BUFFER_BIT);
-    glClear         (GL_DEPTH_BUFFER_BIT);
-    glDepthFunc     (GL_LEQUAL          );
-    glMatrixMode    (GL_MODELVIEW       );
-}
-
 void Renderer::DrawWall(const Transform &wallBegin, const Transform &wallEnd)
 {
     #ifdef DEBUG
-        cout << "Drawing a wall" << endl;
+        cout << "Drawing a wall between:" << endl;
+        cout << "\t[" << wallBegin[12] << ", " << wallBegin[13] << ", " << wallBegin[14] << "]" << endl;
+        cout << "\t[" << wallEnd[12] << ", " << wallEnd[13] << ", " << wallEnd[14] << "]" << endl; 
     #endif // DEBUG
-    PreBuffering();
-    glPushMatrix();
 
-    //for (const auto &component : wallBegin) cout << component << "," << endl;
-    //glTranslated(wallBegin[12], wallBegin[13], wallBegin[14]);
-    glLoadMatrixd(wallEnd.data());
-    DrawTeapot();
+    const double wallLen = MarkerMath::Distance(wallBegin, wallEnd) / 80.0;
 
-    glPopMatrix();
-    PostBuffering();
+    BufferTransform (wallBegin          );
+
+    glEnable        (GL_DEPTH_TEST      );
+    glPushMatrix    (                   );
+    glScaled        (wallLen, 1.0, 1.0  );
+    glutWireCube    (80.f               );
+    glPopMatrix     (                   );
+    glDisable       (GL_DEPTH_TEST      );
+}
+
+void Renderer::DrawWholeCircle(const Vector &screenPosition)
+{
+
+}
+
+void Renderer::DrawEmptyCircle(const Vector &screenPosition)
+{
+
 }

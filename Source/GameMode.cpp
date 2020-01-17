@@ -31,6 +31,11 @@ void GameMode::SetLives(int newLives)
     currentLives = newLives;
 }
 
+int GameMode::GetLives() const 
+{
+    return currentLives;
+}
+
 void GameMode::Update(float elapsedTime)
 {
     switch (gameState) {
@@ -54,7 +59,7 @@ void GameMode::Update(float elapsedTime)
 
 void GameMode::FindWalls(float elapsedTime)
 {
-    int visibleMarkers = 0;
+    uint32_t visibleMarkers = 0;
 
     for (const auto &wallMarker : wallMarkers)
         if (wallMarker->IsVisible())

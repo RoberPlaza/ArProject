@@ -24,8 +24,8 @@ using   Clock           =       chrono::system_clock;
 
 
 typedef std::array<double, 16>  Transform;
-typedef std::array<double, 16>  Center;
 typedef std::array<double, 3>   Vector;
+typedef std::array<double, 2>   Center;
 
 
 #endif // !COMMON_HEADER__

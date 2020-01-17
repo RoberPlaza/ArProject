@@ -20,7 +20,7 @@
 
 #include <array>
 #include <memory>
-
+#include <string>
 
 /**
  * @brief This class encapsulates the information of a Marker.
@@ -51,24 +51,22 @@ public:
     virtual ~Marker ();
 
     /**
-     * @brief Updates the information regarding the markers.
-     * 
-     * Each frame the Tick function should be called with the information
-     * of the camera. The information regarding the net matrix will not be 
-     * up-to-date untill the new Tick.
-     * 
-     * @param elapsedTime Time passed since the game started
-     * @param data Pointer to the data of the camera
-     */
-    virtual void Tick(float elapsedTime);
-
-    /**
      * @brief Gets information about itself based on the markers detected.
+     * 
+     * @warning No tengo ni puta idea de porqué esto no funciona y ya estoy 
+     * hasta los cojones, no pienso depurarlo, no usar.
      * 
      * @param markers List of markets detected by ARToolKit.
      * @param count Number of markers detected, because fuck C.
      */
     void DetectYourself(ARMarkerInfo **markers, int count);
+
+    /**
+     * @brief Extracts the data of the info and stores it into the marker.
+     * 
+     * @param info struct with the raw information.
+     */
+    void ExtractData(ARMarkerInfo *info);
 
     /**
      * @brief Gets the Id of the marker.
@@ -128,6 +126,15 @@ public:
     bool IsVisible() const;
 
     /**
+     * @brief Returns true if the marker has been hidden in previous frames.
+     * 
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool HasBeenHidden() const;
+
+    /**
      * @brief Get the Gl Trans Mat of the marker
      * 
      * @return Array with the OpenGL specific format.
@@ -141,13 +148,12 @@ public:
      */
     Vector GetLocation() const;
 
-public:
-
     /**
-     * @brief Number of frames so that the marker is considered hidden.
+     * @brief Returns the gl transform matrix as a readable string.
      * 
+     * @return string 
      */
-    static int framesToHidden;
+    string GetGlTransMatStr() const;
 
 private:
 
@@ -158,6 +164,15 @@ private:
      * @return double with the distance.
      */
     double DistanceTo(const Transform &trans) const;
+
+public:
+
+    /**
+     * @brief Number of frames so that the marker is considered hidden.
+     * 
+     */
+    static int      framesToHidden;
+
 
 private:
 
@@ -210,12 +225,6 @@ private:
  * 
  */
 typedef shared_ptr<Marker> ArMarker;
-
-/**
- * @brief To be configured.
- * 
- */
-int Marker::framesToHidden;
 
 
 #endif // !RVYA_MARKER__
