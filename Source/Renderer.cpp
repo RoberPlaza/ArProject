@@ -67,24 +67,34 @@ void Renderer::DrawTeapot()
 
 void Renderer::DrawWall(double angle, double length, double size)
 {
-    const double        wallLength  = (length + size) / size;
 
     glEnable        (GL_DEPTH_TEST      );
     glPushMatrix    (                   );
     glRotated       (angle, 0, 0, 1     );
-    glTranslated    (size * 2, 0., 0.   );
-    glScaled        (wallLength, 1., 1. );
+    glTranslated    (size*2, 0., 0      );
+    glScaled        (length, 1., 1.     );
     glutWireCube    (size               );
     glPopMatrix     (                   );
     glDisable       (GL_DEPTH_TEST      );
 }
 
-void Renderer::DrawWholeCircle(const Vector &screenPosition)
+void Renderer::DrawWholeCircle()
 {
-
+    glPushMatrix    (                   );
+    glColor3f       (1.f, 0.f, 0.f      );
+    glutSolidSphere (8.0, 25, 25        );
+    glPopMatrix     (                   );
 }
 
-void Renderer::DrawEmptyCircle(const Vector &screenPosition)
+void Renderer::DrawEmptyCircle()
 {
+    glPushMatrix    (                   );
+    glColor3f       (1.f, 0.f, 0.f      );
+    glutWireSphere  (8.0, 25, 25        );
+    glPopMatrix     (                   );
+}
 
+void Renderer::BufferColor(const Color &color)
+{
+    glColor3f(color[0], color[1], color[2]);
 }

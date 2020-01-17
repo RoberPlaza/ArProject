@@ -10,6 +10,7 @@
  */
 
 #include "App.h"
+#include "Colors.h"
 #include "MarkerMath.h"
 
 #include <GL/glut.h>
@@ -57,18 +58,27 @@ void App::Tick(float elapsedTime)
 
     renderer.PrepareNextFrame();
 
-    DrawWalls();
-
-/*
-    for (const auto &marker : markers) 
+    switch (gameMode.GetGameState())
     {
-        if (marker->IsVisible()) 
-        {
-            renderer.BufferTransform(marker->GetGlTransMat());
-            renderer.DrawTeapot();
-        }
+        case GameState::FindingWalls:
+            DrawWallsFromMarker();
+            break;
+
+        case GameState::SelectingDifficulty:
+            DrawLives();
+            DrawWallsFromMemory();
+            break;
+
+        case GameState::Playing:
+            DrawLives();
+            DrawWallsFromMemory();
+            break;
+
+        default:
+            throw runtime_error("Something went wrong");
+            break;
     }
-*/
+
     argSwapBuffers();
 }
 
@@ -92,9 +102,9 @@ void App::DetectMarkers()
 {
     int             detectedMarkers;
     int             betterMatch;
-    int             markerIndex;
     int             infoIndex;
 
+    uint32_t        markerIndex;
     ARMarkerInfo   *markerInfo;
     ARUint8        *dataPtr         = arVideoGetImage();
 
@@ -152,8 +162,8 @@ void App::SetupVideoCapture()
     int cameraSizeX;
     int cameraSizeY;
 
-    char videoInput[25];
-    sprintf(videoInput, "-dev=%s", configuration["camera"].c_str());
+    char videoInput[50];
+    sprintf(videoInput, "-dev=%s", configuration["App.camera"].c_str());
 
     if (arVideoOpen(videoInput) < 0)
     {
@@ -200,6 +210,8 @@ void App::CreatePatterns()
         );
 
         gameMode.wallMarkers.push_back(markers.back());
+   
+        wallPositions.push_back({0.0, 0.0, 0.0});
     }
 
     markers.push_back
@@ -229,11 +241,11 @@ void App::CreatePatterns()
     gameMode.shieldMarker = markers.back();
 }
 
-void App::DrawWalls()
+void App::DrawWallsFromMarker()
 {
     const uint32_t wallMarkers = stod(configuration["Marker.wall.count"]);
 
-    for (int i = 0; i < wallMarkers; i++) 
+    for (uint32_t i = 0; i < wallMarkers; i++) 
     { 
         const uint32_t j = (i + 1) % wallMarkers;
 
@@ -241,37 +253,70 @@ void App::DrawWalls()
             && 
             markers[j]->IsVisible())
         {
-            const double    length  = MarkerMath::Distance(
+            const double    length  = (MarkerMath::Distance(
                 markers[i]->GetLocation(), markers[j]->GetLocation()) + 
-                markers[i]->GetSize() / 4.0 ;//+ markers[j]->GetSize() / 4.0;
+                markers[i]->GetSize()) * 2 / markers[i]->GetSize() ;
             
             double          angle   = MarkerMath::GetRoll(
                 markers[i]->GetLocation(), 
-                markers[(i + 1) % wallMarkers]->GetLocation()
+                markers[j]->GetLocation()
             );
 
             switch (i)
-            {
+            {   /* Done */
                 case 0:
-                    angle -= 90;
+                    angle = - 90 - angle;
                     break;
                 
                 case 1:
-                    angle += 90;
+                    angle = - 90 - angle;
                     break;
-
+                /* Done */
                 case 2:
-                    angle -= 90;
+                    angle = - 90 - angle;
                     break;
-
+                /* Done */
                 case 3:
+                    angle = -angle + 180;
                     break;
             }
-            
-            printf("Rendering a wall of length %f, and angle %f\n", length, angle);
+
+            wallPositions[i] = markers[i]->GetGlTransMat();
 
             renderer.BufferTransform(markers[i]->GetGlTransMat());
             renderer.DrawWall(angle, length, markers[i]->GetSize()/2);
+        }
+    }
+}
+
+void App::DrawWallsFromMemory()
+{
+    for (uint32_t wallIndex = 0; wallIndex < wallPositions.size(); wallIndex++)
+    {
+
+    }
+}
+
+void App::DrawLives()
+{
+    if (markers[4]->IsVisible())
+    {
+        renderer.BufferTransform(markers[4]->GetGlTransMat());
+
+        glTranslated(32.0, 0.0, 0.0);
+
+        for (int i = 0; i < gameMode.GetMaxLives(); i++)
+        {
+            glTranslated(-16.0, 0.0, 0.0);
+
+            if (i < gameMode.GetLives())
+            {
+                renderer.DrawWholeCircle();
+            }
+            else
+            {
+                renderer.DrawEmptyCircle();
+            }
         }
     }
 }

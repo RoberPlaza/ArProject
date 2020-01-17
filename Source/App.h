@@ -150,7 +150,19 @@ protected:
      * @brief Draws the wall of the markers.
      * 
      */
-    void DrawWalls();
+    void DrawWallsFromMarker();
+
+    /**
+     * @brief 
+     * 
+     */
+    void DrawWallsFromMemory();
+
+    /**
+     * @brief Draw the lives of the player.
+     * 
+     */
+    void DrawLives();
 
 protected:
 
@@ -197,6 +209,12 @@ private:
      * 
      */
     uint16_t            zBufferSize;
+
+    /**
+     * @brief Stores the las position of the walls;
+     * 
+     */
+    vector<Transform>   wallPositions;    
 
     /**
      * @brief Sets the target framerate of the aplication.

@@ -27,5 +27,7 @@ typedef std::array<double, 16>  Transform;
 typedef std::array<double, 3>   Vector;
 typedef std::array<double, 2>   Center;
 
+typedef std::array<float, 3>    Color;
+
 
 #endif // !COMMON_HEADER__

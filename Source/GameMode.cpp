@@ -16,9 +16,11 @@
 #include <iostream>
 
 
-GameMode::GameMode()
+GameMode::GameMode(int lives)
+    : maxLives(lives)
 {
-    gameState = GameState::FindingWalls;
+    gameState       = GameState::FindingWalls;
+    currentLives    = maxLives;
 }
 
 GameMode::~GameMode()
@@ -26,9 +28,20 @@ GameMode::~GameMode()
 
 }
 
+GameState GameMode::GetGameState() const 
+{
+    return gameState;
+}
+
 void GameMode::SetLives(int newLives)
 {
-    currentLives = newLives;
+    maxLives        = newLives;
+    currentLives    = maxLives;
+}
+
+int GameMode::GetMaxLives() const
+{
+    return maxLives;
 }
 
 int GameMode::GetLives() const 
@@ -65,12 +78,22 @@ void GameMode::FindWalls(float elapsedTime)
     for (const auto &wallMarker : wallMarkers)
     {
         if (wallMarker->IsVisible())
-            {
-                visibleMarkers++;
-            }
+        {
+            visibleMarkers++;
+        }
     }
 
-    if (visibleMarkers >= wallMarkers.size()) 
+    if (configMarker->IsVisible())
+    {
+        visibleMarkers++;
+    }
+
+    if (shieldMarker->IsVisible())
+    {
+        visibleMarkers++;
+    }
+
+    if (visibleMarkers >= wallMarkers.size() + 2) 
     {
         cout << "Selected difficulty:" << endl;
         gameState = GameState::SelectingDifficulty;
@@ -80,7 +103,7 @@ void GameMode::FindWalls(float elapsedTime)
 
 void GameMode::SelectDifficulty(float elapsedTime)
 {
-    if (configMarker->IsVisible()) 
+    if (!configMarker->HasBeenHidden()) 
     {
         difficulty = configMarker->GetRoll();
         timeStamp = elapsedTime;

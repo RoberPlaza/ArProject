@@ -122,7 +122,7 @@ bool Marker::IsVisible() const
 
 bool Marker::HasBeenHidden() const
 {
-    return invisibleFrames > framesToHidden;
+    return (invisibleFrames != -1) && (invisibleFrames > framesToHidden);
 }
 
 double Marker::GetSize() const

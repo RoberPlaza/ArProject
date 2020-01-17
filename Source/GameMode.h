@@ -63,8 +63,9 @@ public:
     /**
      * @brief Construct a new Game Mode object
      * 
+     * @param maxLives Lives of the player.
      */
-    GameMode ();
+    GameMode (int lives = 3);
 
     /**
      * @brief Destroy the Gamemode object
@@ -87,11 +88,25 @@ public:
     void SetLives(int newLives);
 
     /**
+     * @brief Get the Max Lives of the player.
+     * 
+     * @return int 
+     */
+    int GetMaxLives() const;
+
+    /**
      * @brief Get the Lives from the player
      * 
      * @return int 
      */
     int GetLives() const;
+
+    /**
+     * @brief Gets the state of the game.
+     * 
+     * @return GameState 
+     */
+    GameState GetGameState() const;
 
 private:
 
@@ -148,6 +163,12 @@ public:
      * 
      */
     int             currentLives;
+
+    /**
+     * @brief Maximum lives of the player.
+     * 
+     */
+    int             maxLives;
 
 private:
 

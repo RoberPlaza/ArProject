@@ -60,16 +60,14 @@ public:
     /**
      * @brief Draws a whole circle in a given position.
      * 
-     * @param screenPosition to draw a circle.
      */
-    void DrawWholeCircle(const Vector &screenPosition);
+    void DrawWholeCircle();
 
     /**
      * @brief Draws an empty circle in a given position
      * 
-     * @param screenPosition to draw a circle.
      */
-    void DrawEmptyCircle(const Vector &screenPosition);
+    void DrawEmptyCircle();
 
 
     /**
@@ -85,6 +83,13 @@ public:
      * 
      */
     void BufferTransform(const Transform &transform);
+
+    /**
+     * @brief Buffers a color for future renders;
+     * 
+     * @param color 
+     */
+    void BufferColor(const Color &color);
 
 private:
 
