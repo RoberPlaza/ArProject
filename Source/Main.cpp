@@ -42,4 +42,7 @@ int main (int argc, char *argv[])
 }
 
 
-void fuckingCallback () { app->Run(); }
+void fuckingCallback () 
+{ 
+    app->Run(); 
+}

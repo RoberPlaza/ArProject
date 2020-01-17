@@ -11,12 +11,18 @@ ConfigFile::ConfigFile(const string &filePath)
 
     ifstream file(filePath);
     
-    if (file.fail()) return;
-
-    while (getline(file, lineBuffer)) {
-        if (lineBuffer.size() > 0) {
+    if (file.fail())
+    { 
+        return;
+    }
+    
+    while (getline(file, lineBuffer)) 
+    {
+        if (lineBuffer.size() > 0) 
+        {
             
-            switch (lineBuffer.at(0)) {
+            switch (lineBuffer.at(0)) 
+            {
                 case ' ': case '\n': case '\r': moduleBuffer = ""; break;
                 case '[': moduleBuffer = GetModule(lineBuffer); break;
                 default: AddLine(lineBuffer, moduleBuffer); break;
@@ -34,8 +40,10 @@ string ConfigFile::GetModule(const string &line)
 {
     string module = "";
 
-    for (const char lineChar : line) {
-        switch (lineChar) {
+    for (const char lineChar : line)
+     {
+        switch (lineChar) 
+        {
             case '[': case '{': case '(': break;
             case ']': case '}': case ')': return module;
             case '\n': case '\r': return "";
@@ -54,8 +62,10 @@ void ConfigFile::AddLine(const string &line, const string &module)
     string value = "";
     string key = module + '.';
 
-    for (const char lineChar : line) {
-        switch (lineChar) {
+    for (const char lineChar : line) 
+    {
+        switch (lineChar) 
+        {
             case ' ': case '\n': case '\r': break;
             case '=': isKey = false; break;
             default: (isKey) ? key += lineChar : value += lineChar; break;

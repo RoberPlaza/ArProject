@@ -38,7 +38,8 @@ int GameMode::GetLives() const
 
 void GameMode::Update(float elapsedTime)
 {
-    switch (gameState) {
+    switch (gameState) 
+    {
         case GameState::FindingWalls: 
             FindWalls(elapsedTime); 
             break;
@@ -62,10 +63,15 @@ void GameMode::FindWalls(float elapsedTime)
     uint32_t visibleMarkers = 0;
 
     for (const auto &wallMarker : wallMarkers)
+    {
         if (wallMarker->IsVisible())
-            visibleMarkers++;
+            {
+                visibleMarkers++;
+            }
+    }
 
-    if (visibleMarkers >= wallMarkers.size()) {
+    if (visibleMarkers >= wallMarkers.size()) 
+    {
         cout << "Selected difficulty:" << endl;
         gameState = GameState::SelectingDifficulty;
         timeStamp = elapsedTime;
@@ -74,12 +80,16 @@ void GameMode::FindWalls(float elapsedTime)
 
 void GameMode::SelectDifficulty(float elapsedTime)
 {
-    if (configMarker->IsVisible()) {
+    if (configMarker->IsVisible()) 
+    {
         difficulty = configMarker->GetRoll();
         timeStamp = elapsedTime;
         cout << "Difficulty: " << difficulty << endl;
-    } else {
-        if ((elapsedTime - timeStamp) >= configTime) {
+    } 
+    else 
+    {
+        if ((elapsedTime - timeStamp) >= configTime) 
+        {
             cout << "Starting game." << endl;
             gameState = GameState::Playing;
         }

@@ -78,7 +78,7 @@ public:
      * @param wallBegin Is the position in space where the wall begins.
      * @param wallEnd Position were the wall ends.
      */
-    void DrawWall(const Transform &wallBegin, const Transform &wallEnd);
+    void DrawWall(double angle, double length, double size);
 
     /**
      * @brief Function to be called before buffering vertices.

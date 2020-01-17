@@ -76,6 +76,13 @@ public:
     int GetId() const;
 
     /**
+     * @brief Gets the size of the Marker.
+     * 
+     * @return double with the size in milimeters.
+     */
+    double GetSize() const;
+
+    /**
      * @brief Calculates the distance with other marker.
      * 
      * @param other The other marker.

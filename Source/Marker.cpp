@@ -34,7 +34,9 @@ Marker::Marker(
     : id(arLoadPatt(pattFilePath))
 {
     if (id < 0)
+    {
         throw std::runtime_error("Unable to open Marker file");
+    }
 
     size            = pattWidth;
     displacement[0] = pattDispX;
@@ -43,19 +45,25 @@ Marker::Marker(
     invisibleFrames = -1;
 }
 
-Marker::~Marker ( ) { };
+Marker::~Marker ( ) 
+{ 
+
+};
 
 void Marker::ExtractData(ARMarkerInfo *info)
 {
     double netMatrix[3][4];
 
-    if (info) {
+    if (info) 
+    {
         arGetTransMat(info, displacement.data(), size, netMatrix);
         argConvGlpara(netMatrix, transform.data());
 
         invisibleFrames = 0;
         isVisible       = true;
-    } else {
+    } 
+    else 
+    {
         transform       = Transform();
         invisibleFrames = (invisibleFrames == -1) ? -1 : invisibleFrames + 1;
         isVisible       = false;
@@ -67,11 +75,16 @@ void Marker::DetectYourself(ARMarkerInfo **markers, int count)
     int             i;
     ARMarkerInfo   *markerInfo = nullptr;
 
-    for ( i = 0; i < count ; i++) {
-        if (markers[i]->id == id) {
-            if (!markerInfo)  {
+    for ( i = 0; i < count ; i++) 
+    {
+        if (markers[i]->id == id) 
+        {
+            if (!markerInfo)  
+            {
                 markerInfo = markers[i];
-            } else {  
+            } 
+            else 
+            {  
                 markerInfo = markerInfo->cf < markers[i]->cf ? markers[i] : markerInfo;
             }
         }
@@ -84,6 +97,7 @@ string Marker::GetGlTransMatStr() const
 {
 
     stringstream ss;
+
     ss << "[\n" << std::fixed << std::setprecision(2);
 
     ss << "\t" << transform[0] << ",\t" << transform[4] << ",\t" << transform[8] << ",\t" << transform[12] << endl;
@@ -109,6 +123,11 @@ bool Marker::IsVisible() const
 bool Marker::HasBeenHidden() const
 {
     return invisibleFrames > framesToHidden;
+}
+
+double Marker::GetSize() const
+{
+    return size;
 }
 
 double Marker::DistanceTo(const Transform &trans) const

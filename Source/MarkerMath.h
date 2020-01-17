@@ -44,6 +44,33 @@ typedef struct MarkerMath
     static double Distance(const Transform &first, const Transform &second);
 
     /**
+     * @brief Calculates the euclidean distance between vectors.
+     * 
+     * @param fist First of the vectors
+     * @param second Second of the vectors.
+     * @return double With the distance between the vectors.
+     */
+    static double Distance(const Vector &first, const Vector &second);
+
+    /**
+     * @brief Calculates the dot product between two vectors.
+     * 
+     * @param first vector
+     * @param second vector
+     * @return double with the result
+     */
+    static double DotProduct(const Vector &first, const Vector &second);
+
+    /**
+     * @brief Calculates the rotation in the Z axis between 2 vectors
+     * 
+     * @param first vector
+     * @param second vector
+     * @return double with the angle in degrees.
+     */
+    static double GetRoll(const Vector &first, const Vector &second);
+
+    /**
      * @brief Get the rotation in the X axis of a marker. 
      * 
      * @warning Result may not be accurate.
@@ -70,6 +97,24 @@ typedef struct MarkerMath
      * @return double With the rotation in degrees.
      */
     static double GetRoll(const Transform &markerTransform);
+
+    /**
+     * @brief Calculates the cross product of two vectors.
+     * 
+     * @param first First vector.
+     * @param second Second vector.
+     * @return Vector with the result.
+     */
+    static Vector CrossProduct(const Vector &first, const Vector &second);
+
+    /**
+     * @brief Calculates the cross product of two vectors and normalizes it.
+     * 
+     * @param first First vector.
+     * @param second Second vector.
+     * @return Vector with the result.
+     */
+    static Vector NormalizeCrossProduct(const Vector &first, const Vector &second);
 
 } MarkerMath;
 

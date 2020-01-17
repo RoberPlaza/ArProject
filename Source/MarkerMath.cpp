@@ -5,11 +5,40 @@
 
 double MarkerMath::Distance(const Transform &first, const Transform &second)
 {
+    const Vector firstPosition  = {first[12],   first[13],  first[14]};
+    const Vector secondPosition = {second[12],  second[13], second[14]};
+
+    return Distance(firstPosition, secondPosition);
+}
+
+double MarkerMath::Distance(const Vector &first, const Vector &second)
+{
     return sqrt(
-        (first[12]  - second[12] ) * (first[12]  - second[12] ) +
-        (first[13]  - second[13] ) * (first[13]  - second[13] ) +
-        (first[14]  - second[14] ) * (first[14]  - second[14] )
+        (first[0] - second[0]) * (first[0] - second[0]) +
+        (first[1] - second[1]) * (first[1] - second[1]) +
+        (first[2] - second[2]) * (first[2] - second[2])
     );
+}
+
+double MarkerMath::DotProduct(const Vector &first, const Vector &second)
+{
+    static int  i       = 0;
+    double      result  = 0.0;
+
+    for (i = 0; i < 3; i++) 
+    {
+        result += first[i] * second[i];
+    }
+
+    return result;
+}
+
+double MarkerMath::GetRoll(const Vector &first, const Vector &second)
+{
+    const Vector Buffer = 
+        {first[0] - second[0], first[1] - second[1], first[2] - second[2]};
+
+    return (atan2(Buffer[1], Buffer[0]) * 180/M_PI) ;
 }
 
 double MarkerMath::GetYaw(const Transform &markerTransform)
@@ -33,4 +62,27 @@ double MarkerMath::GetRoll(const Transform &markerTransform)
     );
 
     return acos(markerTransform[0]/module) * 180/M_PI;
+}
+
+Vector MarkerMath::CrossProduct(const Vector &first, const Vector &second)
+{
+    Vector result;
+    
+    result[0] = first[1] * second[2] - first[2] * second[1];
+    result[1] = first[0] * second[2] - first[2] * second[0];
+    result[2] = first[0] * second[1] - first[1] * second[0];
+
+    return result;
+}
+
+Vector MarkerMath::NormalizeCrossProduct(const Vector &first, const Vector &second)
+{
+    Vector          result  = CrossProduct(first, second);
+    const double    length  = Distance(first, second);
+
+    result[0] /= length;
+    result[1] /= length;
+    result[2] /= length;
+
+    return result;
 }

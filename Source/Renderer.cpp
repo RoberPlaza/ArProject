@@ -10,7 +10,6 @@
  */
 
 #include "Renderer.h"
-#include "MarkerMath.h"
 
 #include <AR/gsub.h>
 
@@ -66,22 +65,16 @@ void Renderer::DrawTeapot()
     glDisable       (GL_DEPTH_TEST      );
 }
 
-void Renderer::DrawWall(const Transform &wallBegin, const Transform &wallEnd)
+void Renderer::DrawWall(double angle, double length, double size)
 {
-    #ifdef DEBUG
-        cout << "Drawing a wall between:" << endl;
-        cout << "\t[" << wallBegin[12] << ", " << wallBegin[13] << ", " << wallBegin[14] << "]" << endl;
-        cout << "\t[" << wallEnd[12] << ", " << wallEnd[13] << ", " << wallEnd[14] << "]" << endl; 
-    #endif // DEBUG
-
-    const double wallLen = MarkerMath::Distance(wallBegin, wallEnd) / 80.0;
-
-    BufferTransform (wallBegin          );
+    const double        wallLength  = (length + size) / size;
 
     glEnable        (GL_DEPTH_TEST      );
     glPushMatrix    (                   );
-    glScaled        (wallLen, 1.0, 1.0  );
-    glutWireCube    (80.f               );
+    glRotated       (angle, 0, 0, 1     );
+    glTranslated    (size * 2, 0., 0.   );
+    glScaled        (wallLength, 1., 1. );
+    glutWireCube    (size               );
     glPopMatrix     (                   );
     glDisable       (GL_DEPTH_TEST      );
 }

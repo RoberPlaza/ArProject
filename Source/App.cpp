@@ -10,6 +10,7 @@
  */
 
 #include "App.h"
+#include "MarkerMath.h"
 
 #include <GL/glut.h>
 #include <AR/gsub.h>
@@ -30,7 +31,10 @@ App::App(const string &configFilePath) : configuration(configFilePath)
 
 }
 
-App::~App() { };
+App::~App() 
+{ 
+
+};
 
 void App::Run()
 {
@@ -53,19 +57,18 @@ void App::Tick(float elapsedTime)
 
     renderer.PrepareNextFrame();
 
-    renderer.DrawWholeCircle({0.0, 0.0, 0.0});
+    DrawWalls();
 
-    if (markers[0]->IsVisible() && markers[1]->IsVisible()) {
-        renderer.DrawWall(markers[0]->GetGlTransMat(), markers[1]->GetGlTransMat());
-    } else
-
-    for (const auto &marker : markers) {
-        if (marker->IsVisible()) {
+/*
+    for (const auto &marker : markers) 
+    {
+        if (marker->IsVisible()) 
+        {
             renderer.BufferTransform(marker->GetGlTransMat());
             renderer.DrawTeapot();
         }
     }
-
+*/
     argSwapBuffers();
 }
 
@@ -96,38 +99,49 @@ void App::DetectMarkers()
     ARUint8        *dataPtr         = arVideoGetImage();
 
 
-    if (dataPtr == NULL)  return;
+    if (dataPtr == NULL)
+    {
+        return;
+    }
 
     argDrawMode2D();
     argDispImage(dataPtr, 0, 0);
 
-    if (arDetectMarker(dataPtr, errorThreshold, &markerInfo, &detectedMarkers) < 0) {
+    if (arDetectMarker(dataPtr, errorThreshold, &markerInfo, &detectedMarkers) < 0) 
+    {
         Cleanup();
         throw runtime_error("Error reading camera");
     }
 
     arVideoCapNext();
 
-    for (markerIndex = 0; markerIndex < markers.size(); markerIndex++) {
-        for (infoIndex = 0, betterMatch = -1; infoIndex < detectedMarkers; infoIndex++) {
-            if (markers[markerIndex]->GetId() == markerInfo[infoIndex].id) {
-                if (betterMatch == -1) {
+    for (markerIndex = 0; markerIndex < markers.size(); markerIndex++) 
+    {
+        for (infoIndex = 0, betterMatch = -1; infoIndex < detectedMarkers; infoIndex++) 
+        {
+            if (markers[markerIndex]->GetId() == markerInfo[infoIndex].id) 
+            {
+                if (betterMatch == -1) 
+                {
                     betterMatch = infoIndex;
                 }
                 
-                if (markerInfo[betterMatch].cf < markerInfo[infoIndex].cf) {
+                if (markerInfo[betterMatch].cf < markerInfo[infoIndex].cf) 
+                {
                     betterMatch = infoIndex;
                 }
             }
 
-            if (betterMatch != -1) {
+            if (betterMatch != -1) 
+            {
                 markers[markerIndex]->ExtractData(&markerInfo[betterMatch]);
-            } else {
+            } 
+            else 
+            {
                 markers[markerIndex]->ExtractData(nullptr);
             }
         }
     }
-
 }
 
 void App::SetupVideoCapture() 
@@ -142,13 +156,19 @@ void App::SetupVideoCapture()
     sprintf(videoInput, "-dev=%s", configuration["camera"].c_str());
 
     if (arVideoOpen(videoInput) < 0)
+    {
         throw std::runtime_error("Impossible to initialize ARToolkit video.");
+    }
 
     if (arVideoInqSize(&cameraSizeX, &cameraSizeY) < 0)
+    {    
         throw std::runtime_error("Impossible to get camera size");
+    }
 
     if (arParamLoad(configuration["App.cameraConfigPath"].c_str(), 1, &windowParam) < 0)
+    {    
         throw std::runtime_error("Impossible to start camera recording");
+    }
 
     arParamChangeSize(&windowParam, cameraSizeX, cameraSizeY, &cameraParam);
     arInitCparam(&cameraParam);
@@ -164,11 +184,14 @@ void App::CreatePatterns()
     const double    wallMarkerDispX =   stod(configuration["Marker.wall.center.x"   ]);
     const double    wallMarkerDispY =   stod(configuration["Marker.wall.center.y"   ]);
 
-    for (int i = 0; i < wallCount; i++) {
+    for (int i = 0; i < wallCount; i++) 
+    {
         sprintf(wallMarkerPath, "Marker.wall.%d.path", i);
 
-        markers.push_back(
-            make_shared<Marker>(
+        markers.push_back
+        (
+            make_shared<Marker>
+            (
                 configuration[wallMarkerPath].c_str(),
                 wallMarkerSize,
                 wallMarkerDispX,
@@ -179,8 +202,10 @@ void App::CreatePatterns()
         gameMode.wallMarkers.push_back(markers.back());
     }
 
-    markers.push_back(
-        make_shared<Marker>(
+    markers.push_back
+    (
+        make_shared<Marker>
+        (
             configuration       ["Marker.config.path"].c_str(),
             stod(configuration  ["Marker.config.size"       ]),
             stod(configuration  ["Marker.config.center.y"   ]),
@@ -190,8 +215,10 @@ void App::CreatePatterns()
 
     gameMode.configMarker = markers.back();
 
-    markers.push_back(
-        make_shared<Marker> (
+    markers.push_back
+    (
+        make_shared<Marker> 
+        (
             configuration       ["Marker.shield.path"].c_str(),
             stod(configuration  ["Marker.shield.size"       ]),
             stod(configuration  ["Marker.shield.center.y"   ]),
@@ -200,4 +227,51 @@ void App::CreatePatterns()
     );
 
     gameMode.shieldMarker = markers.back();
+}
+
+void App::DrawWalls()
+{
+    const uint32_t wallMarkers = stod(configuration["Marker.wall.count"]);
+
+    for (int i = 0; i < wallMarkers; i++) 
+    { 
+        const uint32_t j = (i + 1) % wallMarkers;
+
+        if (markers[i]->IsVisible() 
+            && 
+            markers[j]->IsVisible())
+        {
+            const double    length  = MarkerMath::Distance(
+                markers[i]->GetLocation(), markers[j]->GetLocation()) + 
+                markers[i]->GetSize() / 4.0 ;//+ markers[j]->GetSize() / 4.0;
+            
+            double          angle   = MarkerMath::GetRoll(
+                markers[i]->GetLocation(), 
+                markers[(i + 1) % wallMarkers]->GetLocation()
+            );
+
+            switch (i)
+            {
+                case 0:
+                    angle -= 90;
+                    break;
+                
+                case 1:
+                    angle += 90;
+                    break;
+
+                case 2:
+                    angle -= 90;
+                    break;
+
+                case 3:
+                    break;
+            }
+            
+            printf("Rendering a wall of length %f, and angle %f\n", length, angle);
+
+            renderer.BufferTransform(markers[i]->GetGlTransMat());
+            renderer.DrawWall(angle, length, markers[i]->GetSize()/2);
+        }
+    }
 }

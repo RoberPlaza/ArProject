@@ -146,6 +146,12 @@ protected:
      */
     void DetectMarkers();
 
+    /**
+     * @brief Draws the wall of the markers.
+     * 
+     */
+    void DrawWalls();
+
 protected:
 
     /**
