@@ -389,9 +389,9 @@ bool App::IsAtTheRightOfTheWall(const Vector &position) const
 
 bool App::IsAtTheTopOfTheWall(const Vector &position) const
 {
-    return  position[1] > wallPositions[0][13]
+    return  position[1] < wallPositions[0][13]
             &&
-            position[1] > wallPositions[1][13];
+            position[1] < wallPositions[1][13];
 }
 
 bool App::IsAtTheBottomOfTheWall(const Vector &position) const
